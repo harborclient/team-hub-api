@@ -1,0 +1,70 @@
+{
+  "name": "@harborclient/team-hub-api",
+  "version": "0.1.0",
+  "description": "TypeScript client for the HarborClient Team Hub API.",
+  "keywords": [
+    "harborclient",
+    "team-hub",
+    "api",
+    "client",
+    "typescript"
+  ],
+  "homepage": "https://github.com/harborclient/team-hub-api",
+  "bugs": {
+    "url": "https://github.com/harborclient/team-hub-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harborclient/team-hub-api.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "HarborClient",
+    "email": "contact@harborclient.com"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "packageManager": "pnpm@10.17.1",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "rm -rf dist",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint --cache .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "release": "gh workflow run Release --ref main -f release_type=patch",
+    "release:patch": "gh workflow run Release --ref main -f release_type=patch",
+    "release:minor": "gh workflow run Release --ref main -f release_type=minor",
+    "release:major": "gh workflow run Release --ref main -f release_type=major"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^26.0.1",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.5",
+    "prettier": "^3.8.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.36.0",
+    "vitest": "^4.1.9"
+  }
+}

@@ -20,7 +20,7 @@ export default defineConfig({
   appearance: 'force-dark',
   cleanUrls: true,
   vite: {
-    publicDir: '.vitepress/static',
+    publicDir: '.vitepress/static'
   },
   head: [
     ['link', { rel: 'icon', href: withSiteBase('/images/favicon.ico') }],
@@ -30,8 +30,8 @@ export default defineConfig({
         rel: 'icon',
         type: 'image/png',
         sizes: '16x16',
-        href: withSiteBase('/images/favicon-16x16.png'),
-      },
+        href: withSiteBase('/images/favicon-16x16.png')
+      }
     ],
     [
       'link',
@@ -39,22 +39,22 @@ export default defineConfig({
         rel: 'icon',
         type: 'image/png',
         sizes: '32x32',
-        href: withSiteBase('/images/favicon-32x32.png'),
-      },
+        href: withSiteBase('/images/favicon-32x32.png')
+      }
     ],
     [
       'link',
       {
         rel: 'apple-touch-icon',
         sizes: '180x180',
-        href: withSiteBase('/images/apple-touch-icon.png'),
-      },
-    ],
+        href: withSiteBase('/images/apple-touch-icon.png')
+      }
+    ]
   ],
   ignoreDeadLinks: [/^https?:\/\/localhost(?::\d+)?(?:\/|$)/],
   markdown: {
     anchor: {
-      slugify: toAnchor,
+      slugify: toAnchor
     },
     config(md) {
       const defaultRender =
@@ -77,31 +77,31 @@ export default defineConfig({
     },
     gfmAlerts: true,
     languageAlias: {
-      env: 'dotenv',
-    },
+      env: 'dotenv'
+    }
   },
   themeConfig: {
     logo: false,
     nav: [
       {
         text: `v${pkg.version}`,
-        link: 'https://github.com/harborclient/team-hub-api/releases',
-      },
+        link: 'https://github.com/harborclient/team-hub-api/releases'
+      }
     ],
     socialLinks: [
       {
         icon: 'github',
         link: 'https://github.com/harborclient/team-hub-api',
-        ariaLabel: '@harborclient/team-hub-api on GitHub',
-      },
+        ariaLabel: '@harborclient/team-hub-api on GitHub'
+      }
     ],
     sidebar,
     outline: {
       level: [2, 3],
-      label: 'On this page',
+      label: 'On this page'
     },
     search: {
-      provider: 'local',
-    },
-  },
+      provider: 'local'
+    }
+  }
 });

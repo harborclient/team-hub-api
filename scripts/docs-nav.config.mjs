@@ -21,19 +21,19 @@ export const syncedPages = [];
  */
 export const docsNav = [
   { kind: 'overview', title: 'Introduction' },
-  { kind: 'page', slug: "install", title: "Install" },
-  { kind: 'page', slug: "usage", title: "Usage" },
+  { kind: 'page', slug: 'install', title: 'Install' },
+  { kind: 'page', slug: 'usage', title: 'Usage' },
   { kind: 'page', slug: 'api-coverage', title: 'API coverage', maxDepth: 0 },
-  { kind: 'page', slug: "development", title: "Development" },
-  { kind: 'page', slug: "license", title: "License" },
+  { kind: 'page', slug: 'development', title: 'Development' },
+  { kind: 'page', slug: 'license', title: 'License' }
 ];
 
 /** Slugs of canonical overview pages committed under docs/<slug>/index.md. */
 export const groupOverviewSlugs = new Set(
-  docsNav.filter((entry) => entry.kind === 'group').map((entry) => entry.slug),
+  docsNav.filter((entry) => entry.kind === 'group').map((entry) => entry.slug)
 );
 
 /** Slugs of canonical guide pages committed as docs/<slug>.md. */
 export const canonicalPageSlugs = new Set(
-  docsNav.filter((entry) => entry.kind === 'page').map((entry) => entry.slug),
+  docsNav.filter((entry) => entry.kind === 'page').map((entry) => entry.slug)
 );

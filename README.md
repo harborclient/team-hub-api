@@ -12,12 +12,12 @@
 
 ## Documentation
 
-| Topic | Link |
-| --- | --- |
-| Getting started | [Introduction](https://harborclient.github.io/team-hub-api/) |
-| Installation | [Install](https://harborclient.github.io/team-hub-api/install) |
-| Usage | [Usage](https://harborclient.github.io/team-hub-api/usage) |
-| API reference | [API coverage](https://harborclient.github.io/team-hub-api/api-coverage) |
+| Topic           | Link                                                                     |
+| --------------- | ------------------------------------------------------------------------ |
+| Getting started | [Introduction](https://harborclient.github.io/team-hub-api/)             |
+| Installation    | [Install](https://harborclient.github.io/team-hub-api/install)           |
+| Usage           | [Usage](https://harborclient.github.io/team-hub-api/usage)               |
+| API reference   | [API coverage](https://harborclient.github.io/team-hub-api/api-coverage) |
 
 Canonical docs live in [`docs/`](./docs/). Edit those pages directly, then run `pnpm docs:build:nav` to refresh the VitePress sidebar.
 

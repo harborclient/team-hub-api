@@ -212,8 +212,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-          ? err.message
-          : 'Unknown network error';
+            ? err.message
+            : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 
@@ -612,8 +612,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-          ? err.message
-          : 'Unknown network error';
+            ? err.message
+            : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 

@@ -166,6 +166,33 @@ export interface ITeamHubClient {
   ): Promise<AdminEntityConfig>;
 
   /**
+   * Lists all snippets for admin user management.
+   */
+  listAdminSnippets(): Promise<SnippetRecord[]>;
+
+  /**
+   * Creates a snippet through the management API.
+   *
+   * @param input - Display name, JavaScript source, and scope for the new snippet.
+   */
+  createAdminSnippet(input: CreateSnippetInput): Promise<SnippetRecord>;
+
+  /**
+   * Updates a snippet's name, code, and scope through the management API.
+   *
+   * @param id - Snippet UUID.
+   * @param input - Updated snippet fields.
+   */
+  updateAdminSnippet(id: string, input: UpdateSnippetInput): Promise<SnippetRecord>;
+
+  /**
+   * Deletes a snippet regardless of deletion lock state.
+   *
+   * @param id - Snippet UUID.
+   */
+  deleteAdminSnippet(id: string): Promise<void>;
+
+  /**
    * Lists all hub-offered LLM models for admin user management.
    */
   listAdminLlmModels(): Promise<HubLlmModel[]>;

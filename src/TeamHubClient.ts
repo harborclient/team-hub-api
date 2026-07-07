@@ -22,6 +22,7 @@ import {
   listAdminUsersResponseSchema,
   listAdminCollectionsResponseSchema,
   listAdminEnvironmentsResponseSchema,
+  listAdminSnippetsResponseSchema,
   adminEntityConfigSchema,
   createAdminUserResponseSchema,
   createdApiTokenResponseSchema,
@@ -211,8 +212,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-            ? err.message
-            : 'Unknown network error';
+          ? err.message
+          : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 
@@ -462,6 +463,52 @@ export class TeamHubClient implements ITeamHubClient {
   }
 
   /**
+   * Lists all snippets for admin user management.
+   */
+  async listAdminSnippets(): Promise<SnippetRecord[]> {
+    const result = await this.request('GET', '/admin/snippets', {
+      schema: listAdminSnippetsResponseSchema
+    });
+    return (result as { snippets: SnippetRecord[] }).snippets;
+  }
+
+  /**
+   * Creates a snippet through the management API.
+   *
+   * @param input - Display name, JavaScript source, and scope for the new snippet.
+   */
+  async createAdminSnippet(input: CreateSnippetInput): Promise<SnippetRecord> {
+    const result = await this.request('POST', '/admin/snippets', {
+      body: input,
+      schema: snippetRecordSchema
+    });
+    return result as SnippetRecord;
+  }
+
+  /**
+   * Updates a snippet's name, code, and scope through the management API.
+   *
+   * @param id - Snippet UUID.
+   * @param input - Updated snippet fields.
+   */
+  async updateAdminSnippet(id: string, input: UpdateSnippetInput): Promise<SnippetRecord> {
+    const result = await this.request('PUT', `/admin/snippets/${id}`, {
+      body: input,
+      schema: snippetRecordSchema
+    });
+    return result as SnippetRecord;
+  }
+
+  /**
+   * Deletes a snippet regardless of deletion lock state.
+   *
+   * @param id - Snippet UUID.
+   */
+  async deleteAdminSnippet(id: string): Promise<void> {
+    await this.request('DELETE', `/admin/snippets/${id}`);
+  }
+
+  /**
    * Lists all hub-offered LLM models for admin user management.
    *
    * Returns an empty list when LLM support is not configured on the hub.
@@ -565,8 +612,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-            ? err.message
-            : 'Unknown network error';
+          ? err.message
+          : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 

@@ -1078,6 +1078,142 @@ describe('TeamHubClient', () => {
     });
   });
 
+  describe('listAdminSnippets', () => {
+    it('sends bearer auth and parses the full snippets list', async () => {
+      const snippets = [
+        {
+          id: '770e8400-e29b-41d4-a716-446655440003',
+          name: 'Auth helper',
+          code: 'console.log("hello");',
+          scope: 'pre-request' as const,
+          createdAt: '2026-01-02T00:00:00.000Z',
+          deletionLocked: false
+        }
+      ];
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ snippets }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      const result = await client.listAdminSnippets();
+
+      expect(result).toEqual(snippets);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/admin/snippets',
+        expect.objectContaining({
+          method: 'GET',
+          headers: expect.objectContaining({
+            Authorization: 'Bearer hbk_test_token',
+            Accept: 'application/json'
+          })
+        })
+      );
+    });
+  });
+
+  describe('createAdminSnippet', () => {
+    it('sends name, code, and scope in the POST body', async () => {
+      const snippet = {
+        id: '770e8400-e29b-41d4-a716-446655440003',
+        name: 'Auth helper',
+        code: 'console.log("hello");',
+        scope: 'pre-request' as const,
+        createdAt: '2026-01-02T00:00:00.000Z',
+        deletionLocked: false
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(snippet), {
+          status: 201,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      const created = await client.createAdminSnippet({
+        name: 'Auth helper',
+        code: 'console.log("hello");',
+        scope: 'pre-request'
+      });
+
+      expect(created).toEqual(snippet);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/admin/snippets',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({
+            name: 'Auth helper',
+            code: 'console.log("hello");',
+            scope: 'pre-request'
+          })
+        })
+      );
+    });
+  });
+
+  describe('updateAdminSnippet', () => {
+    it('sends updated fields in the PUT body', async () => {
+      const snippet = {
+        id: '770e8400-e29b-41d4-a716-446655440003',
+        name: 'Updated helper',
+        code: 'console.log("updated");',
+        scope: 'post-request' as const,
+        createdAt: '2026-01-02T00:00:00.000Z',
+        deletionLocked: false
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(snippet), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      const result = await client.updateAdminSnippet(snippet.id, {
+        name: 'Updated helper',
+        code: 'console.log("updated");',
+        scope: 'post-request'
+      });
+
+      expect(result).toEqual(snippet);
+      expect(fetchMock).toHaveBeenCalledWith(
+        `http://127.0.0.1:8788/admin/snippets/${snippet.id}`,
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify({
+            name: 'Updated helper',
+            code: 'console.log("updated");',
+            scope: 'post-request'
+          })
+        })
+      );
+    });
+  });
+
+  describe('deleteAdminSnippet', () => {
+    it('resolves without a body for 204 responses', async () => {
+      const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      await expect(
+        client.deleteAdminSnippet('770e8400-e29b-41d4-a716-446655440003')
+      ).resolves.toBeUndefined();
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/admin/snippets/770e8400-e29b-41d4-a716-446655440003',
+        expect.objectContaining({ method: 'DELETE' })
+      );
+    });
+  });
+
   describe('deleteCollection', () => {
     it('resolves without a body for 204 responses', async () => {
       const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));

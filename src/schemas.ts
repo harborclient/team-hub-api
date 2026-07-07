@@ -277,6 +277,13 @@ export const listAdminEnvironmentsResponseSchema = z.object({
 });
 
 /**
+ * List response wrapper for admin snippet listings.
+ */
+export const listAdminSnippetsResponseSchema = z.object({
+  snippets: z.array(snippetRecordSchema)
+});
+
+/**
  * Request body schema for `PUT /admin/users/:id`.
  */
 export const updateAdminUserBodySchema = z.object({

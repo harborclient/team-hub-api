@@ -6,6 +6,7 @@ import type {
   CreateEnvironmentInput,
   CreateFolderInput,
   CreateRequestInput,
+  CreateSnippetInput,
   EnvironmentRecord,
   FolderRecord,
   HealthResponse,
@@ -17,6 +18,7 @@ import type {
   ReorderRequestsInput,
   SavedRequestRecord,
   SessionResponse,
+  SnippetRecord,
   TeamHubAdminResourceOptions,
   UpdateCollectionInput,
   UpdateEnvironmentInput,
@@ -27,6 +29,7 @@ import type {
   CreateHubTokenInput,
   CreatedHubToken,
   UpdateRequestInput,
+  UpdateSnippetInput,
   ReloadConfigResponse
 } from './types.js';
 import type { HubLlmModel } from './appTypes.js';
@@ -175,6 +178,11 @@ export interface ITeamHubClient {
   probeLlmServiceEnabled(managementApi: boolean): Promise<boolean>;
 
   /**
+   * Returns whether the Team Hub server exposes snippet storage routes.
+   */
+  probeSnippetsServiceEnabled(): Promise<boolean>;
+
+  /**
    * Returns plugin catalog and trusted-publisher URLs configured on this Team Hub.
    */
   getPluginSources(): Promise<PluginSourcesResponse>;
@@ -251,6 +259,36 @@ export interface ITeamHubClient {
    * @param id - Environment UUID.
    */
   deleteEnvironment(id: string): Promise<void>;
+
+  /**
+   * Lists all snippets visible to the authenticated token.
+   *
+   * Admin tokens receive the full catalog from `GET /snippets`; create, update,
+   * and delete remain forbidden on the server.
+   */
+  listSnippets(): Promise<SnippetRecord[]>;
+
+  /**
+   * Creates a new top-level snippet.
+   *
+   * @param input - Display name for the snippet.
+   */
+  createSnippet(input: CreateSnippetInput): Promise<SnippetRecord>;
+
+  /**
+   * Updates an existing snippet's name, code, and scope.
+   *
+   * @param id - Snippet UUID.
+   * @param input - Updated snippet fields.
+   */
+  updateSnippet(id: string, input: UpdateSnippetInput): Promise<SnippetRecord>;
+
+  /**
+   * Deletes a snippet by id.
+   *
+   * @param id - Snippet UUID.
+   */
+  deleteSnippet(id: string): Promise<void>;
 
   /**
    * Lists folders in a collection ordered by sort order, then name.

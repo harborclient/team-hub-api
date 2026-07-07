@@ -7,6 +7,8 @@ export {
 export { TeamHubClientError } from './TeamHubClientError.js';
 export { toTeamHubAuth, type TeamHubAuthConfig, type TeamHubAuthType } from './auth.js';
 export { isTeamHubCollectionDeleteForbiddenError } from './isTeamHubCollectionDeleteForbiddenError.js';
+export { isTeamHubSnippetsUnsupportedError } from './isTeamHubSnippetsUnsupportedError.js';
+export { isTeamHubSnippetsForbiddenError } from './isTeamHubSnippetsForbiddenError.js';
 export type {
   AdminEntityConfig,
   AdminResourceOption,
@@ -17,6 +19,7 @@ export type {
   CreateHubTokenInput,
   CreateHubUserInput,
   CreateRequestInput,
+  CreateSnippetInput,
   CreatedHubToken,
   CreatedHubUser,
   EnvironmentRecord,
@@ -37,10 +40,13 @@ export type {
   SavedRequestRecord,
   SessionCapabilities,
   SessionResponse,
+  SnippetRecord,
+  SnippetScope,
   TeamHubAdminResourceOptions,
   TeamHubClientConfig,
   UpdateCollectionInput,
   UpdateEnvironmentInput,
   UpdateHubUserInput,
-  UpdateRequestInput
+  UpdateRequestInput,
+  UpdateSnippetInput
 } from './types.js';

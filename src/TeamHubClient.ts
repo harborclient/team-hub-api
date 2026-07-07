@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 import type { ITeamHubClient } from './ITeamHubClient.js';
 import { TeamHubClientError } from './TeamHubClientError.js';
+import { isTeamHubSnippetsUnsupportedError } from './isTeamHubSnippetsUnsupportedError.js';
 import {
   collectionRecordSchema,
   environmentRecordSchema,
@@ -11,11 +12,13 @@ import {
   listEnvironmentsResponseSchema,
   listFoldersResponseSchema,
   listHubLlmModelsResponseSchema,
+  listSnippetsResponseSchema,
   pluginSourcesResponseSchema,
   listRequestsResponseSchema,
   hubChatStepResponseSchema,
   savedRequestRecordSchema,
   sessionResponseSchema,
+  snippetRecordSchema,
   listAdminUsersResponseSchema,
   listAdminCollectionsResponseSchema,
   listAdminEnvironmentsResponseSchema,
@@ -36,6 +39,7 @@ import type {
   CreateHubTokenInput,
   CreateHubUserInput,
   CreateRequestInput,
+  CreateSnippetInput,
   CreatedHubToken,
   CreatedHubUser,
   EnvironmentRecord,
@@ -51,11 +55,13 @@ import type {
   SavedRequestRecord,
   TeamHubClientConfig,
   SessionResponse,
+  SnippetRecord,
   TeamHubAdminResourceOptions,
   UpdateCollectionInput,
   UpdateEnvironmentInput,
   UpdateHubUserInput,
   UpdateRequestInput,
+  UpdateSnippetInput,
   ReloadConfigResponse
 } from './types.js';
 import type { ChatStepMessage, ChatStepResult, HubLlmModel } from './appTypes.js';
@@ -502,6 +508,26 @@ export class TeamHubClient implements ITeamHubClient {
   }
 
   /**
+   * Returns whether the Team Hub server exposes snippet storage routes.
+   *
+   * Older hub deployments return 404 for `GET /snippets` before the feature shipped.
+   */
+  async probeSnippetsServiceEnabled(): Promise<boolean> {
+    try {
+      await this.request('GET', '/snippets', {
+        schema: listSnippetsResponseSchema
+      });
+      return true;
+    } catch (error) {
+      if (isTeamHubSnippetsUnsupportedError(error)) {
+        return false;
+      }
+
+      throw error;
+    }
+  }
+
+  /**
    * Loads collection, environment, and LLM model options for admin user forms.
    */
   async listAdminResourceOptions(): Promise<TeamHubAdminResourceOptions> {
@@ -672,6 +698,55 @@ export class TeamHubClient implements ITeamHubClient {
    */
   async deleteEnvironment(id: string): Promise<void> {
     await this.request('DELETE', `/environments/${id}`);
+  }
+
+  /**
+   * Lists all snippets visible to the authenticated token.
+   *
+   * Admin tokens receive the full catalog from `GET /snippets`; create, update,
+   * and delete remain forbidden on the server.
+   */
+  async listSnippets(): Promise<SnippetRecord[]> {
+    const result = await this.request('GET', '/snippets', {
+      schema: listSnippetsResponseSchema
+    });
+    return (result as { snippets: SnippetRecord[] }).snippets;
+  }
+
+  /**
+   * Creates a new top-level snippet.
+   *
+   * @param input - Display name for the snippet.
+   */
+  async createSnippet(input: CreateSnippetInput): Promise<SnippetRecord> {
+    const result = await this.request('POST', '/snippets', {
+      body: input,
+      schema: snippetRecordSchema
+    });
+    return result as SnippetRecord;
+  }
+
+  /**
+   * Updates an existing snippet's name, code, and scope.
+   *
+   * @param id - Snippet UUID.
+   * @param input - Updated snippet fields.
+   */
+  async updateSnippet(id: string, input: UpdateSnippetInput): Promise<SnippetRecord> {
+    const result = await this.request('PUT', `/snippets/${id}`, {
+      body: input,
+      schema: snippetRecordSchema
+    });
+    return result as SnippetRecord;
+  }
+
+  /**
+   * Deletes a snippet by id.
+   *
+   * @param id - Snippet UUID.
+   */
+  async deleteSnippet(id: string): Promise<void> {
+    await this.request('DELETE', `/snippets/${id}`);
   }
 
   /**

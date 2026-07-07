@@ -634,6 +634,111 @@ describe('TeamHubClient', () => {
     });
   });
 
+  describe('createSnippet', () => {
+    it('sends name, code, and scope in the POST body', async () => {
+      const snippet = {
+        id: '770e8400-e29b-41d4-a716-446655440003',
+        name: 'Auth helper',
+        code: 'console.log("hello");',
+        scope: 'pre-request' as const,
+        createdAt: '2026-01-02T00:00:00.000Z',
+        deletionLocked: false
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(snippet), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      const created = await client.createSnippet({
+        name: 'Auth helper',
+        code: 'console.log("hello");',
+        scope: 'pre-request'
+      });
+
+      expect(created).toEqual(snippet);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/snippets',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({
+            name: 'Auth helper',
+            code: 'console.log("hello");',
+            scope: 'pre-request'
+          })
+        })
+      );
+    });
+  });
+
+  describe('listSnippets', () => {
+    it('sends bearer auth and parses the full snippets list', async () => {
+      const snippet = {
+        id: '770e8400-e29b-41d4-a716-446655440003',
+        name: 'Auth helper',
+        code: 'console.log("hello");',
+        scope: 'pre-request' as const,
+        createdAt: '2026-01-02T00:00:00.000Z',
+        deletionLocked: false
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ snippets: [snippet] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      const snippets = await client.listSnippets();
+
+      expect(snippets).toEqual([snippet]);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/snippets',
+        expect.objectContaining({
+          method: 'GET',
+          headers: expect.objectContaining({
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json'
+          })
+        })
+      );
+    });
+  });
+
+  describe('probeSnippetsServiceEnabled', () => {
+    it('returns true when GET /snippets succeeds', async () => {
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ snippets: [] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      await expect(client.probeSnippetsServiceEnabled()).resolves.toBe(true);
+    });
+
+    it('returns false when GET /snippets returns 404', async () => {
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ error: 'Not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      await expect(client.probeSnippetsServiceEnabled()).resolves.toBe(false);
+    });
+  });
+
   describe('createCollection', () => {
     it('parses Team Hub create responses without oauth2 auth', async () => {
       const collection = {

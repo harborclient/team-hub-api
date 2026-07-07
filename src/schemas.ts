@@ -7,7 +7,9 @@ import type {
   HealthResponse,
   HubUserRecord,
   SavedRequestRecord,
-  SessionResponse
+  SessionResponse,
+  SnippetRecord,
+  SnippetScope
 } from './types.js';
 import type { BodyType, HttpMethod, KeyValue, Variable } from './appTypes.js';
 
@@ -112,6 +114,36 @@ export const environmentRecordSchema = z.object({
   createdAt: timestampSchema,
   deletionLocked: deletionLockedSchema
 }) satisfies z.ZodType<EnvironmentRecord>;
+
+/**
+ * Script phases where a snippet may be referenced.
+ */
+export const snippetScopeSchema = z.enum([
+  'pre-request',
+  'post-request',
+  'any'
+]) satisfies z.ZodType<SnippetScope>;
+
+/**
+ * Request body for creating a snippet.
+ */
+export const createSnippetBodySchema = z.object({
+  name: z.string().trim().min(1),
+  code: z.string().optional(),
+  scope: snippetScopeSchema.optional()
+});
+
+/**
+ * JSON shape for a persisted snippet record.
+ */
+export const snippetRecordSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  code: z.string(),
+  scope: snippetScopeSchema,
+  createdAt: timestampSchema,
+  deletionLocked: deletionLockedSchema
+}) satisfies z.ZodType<SnippetRecord>;
 
 /**
  * JSON shape for a persisted folder record.
@@ -343,6 +375,13 @@ export const listCollectionsResponseSchema = z.object({
  */
 export const listEnvironmentsResponseSchema = z.object({
   environments: z.array(environmentRecordSchema)
+});
+
+/**
+ * List response wrapper for snippets.
+ */
+export const listSnippetsResponseSchema = z.object({
+  snippets: z.array(snippetRecordSchema)
 });
 
 /**

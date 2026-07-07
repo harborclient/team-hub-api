@@ -597,6 +597,86 @@ export interface UpdateEnvironmentInput {
 }
 
 /**
+ * Script phases where a snippet may be referenced.
+ */
+export type SnippetScope = 'pre-request' | 'post-request' | 'any';
+
+/**
+ * Snippet record returned by HarborClient Server entity routes.
+ */
+export interface SnippetRecord {
+  /**
+   * Snippet UUID.
+   */
+  id: string;
+
+  /**
+   * Display name shown in settings and script pickers.
+   */
+  name: string;
+
+  /**
+   * JavaScript source executed when the snippet is referenced.
+   */
+  code: string;
+
+  /**
+   * Script phases where this snippet may be referenced.
+   */
+  scope: SnippetScope;
+
+  /**
+   * ISO 8601 timestamp when the snippet was created.
+   */
+  createdAt: string;
+
+  /**
+   * When true, non-admin users cannot delete this snippet on the hub.
+   */
+  deletionLocked: boolean;
+}
+
+/**
+ * Request body for `POST /snippets`.
+ */
+export interface CreateSnippetInput {
+  /**
+   * Display name for the new snippet.
+   */
+  name: string;
+
+  /**
+   * JavaScript source for the new snippet.
+   */
+  code?: string;
+
+  /**
+   * Script phases where this snippet may be referenced.
+   */
+  scope?: SnippetScope;
+}
+
+/**
+ * Request body for `PUT /snippets/:id`.
+ */
+export interface UpdateSnippetInput {
+  /**
+   * Updated display name.
+   */
+  name: string;
+
+  /**
+   * Updated JavaScript source.
+   */
+  code: string;
+
+  /**
+   * Script phases where this snippet may be referenced.
+   */
+  scope: SnippetScope;
+}
+
+/**
  * Folder record returned by HarborClient Server entity routes.
  */
 export interface FolderRecord {

@@ -930,3 +930,98 @@ export interface MoveRequestInput {
    */
   index: number;
 }
+
+/**
+ * Discriminator for collection-wide or single-request run result snapshots.
+ */
+export type RunResultKind = 'collection-run-results' | 'request-run-results';
+
+/**
+ * Pass/fail/skip counts stored with a run result snapshot.
+ */
+export interface RunResultSummaryCounts {
+  /**
+   * Number of requests that passed.
+   */
+  passed: number;
+
+  /**
+   * Number of requests that failed.
+   */
+  failed: number;
+
+  /**
+   * Number of requests that were skipped.
+   */
+  skipped: number;
+}
+
+/**
+ * Persisted run result metadata returned by list and detail routes.
+ */
+export interface RunResultRecord {
+  /**
+   * Stable run result UUID used in deep links.
+   */
+  id: string;
+
+  /**
+   * Whether the snapshot is a collection-wide or single-request run.
+   */
+  kind: RunResultKind;
+
+  /**
+   * User-facing label for list rows.
+   */
+  label: string;
+
+  /**
+   * Collection display name captured at save time.
+   */
+  collectionName: string | null;
+
+  /**
+   * Request display name when the run targeted one request.
+   */
+  requestName: string | null;
+
+  /**
+   * Pass/fail/skip counts derived from the saved result rows.
+   */
+  summary: RunResultSummaryCounts;
+
+  /**
+   * ISO timestamp when the run result was saved.
+   */
+  createdAt: string;
+
+  /**
+   * User who saved the run result, when known.
+   */
+  createdByUserId: string | null;
+}
+
+/**
+ * Full run result including the serialized HarborClient export payload.
+ */
+export interface RunResultDetail extends RunResultRecord {
+  /**
+   * Complete run-results export JSON stored with the snapshot.
+   */
+  payload: Record<string, unknown>;
+}
+
+/**
+ * Request body for `POST /run-results`.
+ */
+export interface CreateRunResultInput {
+  /**
+   * Optional display label; generated on the server when omitted.
+   */
+  label?: string;
+
+  /**
+   * HarborClient run-results export payload to persist.
+   */
+  payload: Record<string, unknown>;
+}

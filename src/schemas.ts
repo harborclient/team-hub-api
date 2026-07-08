@@ -6,6 +6,8 @@ import type {
   FolderRecord,
   HealthResponse,
   HubUserRecord,
+  RunResultDetail,
+  RunResultRecord,
   SavedRequestRecord,
   SessionResponse,
   SnippetRecord,
@@ -448,4 +450,56 @@ export const hubChatStepResponseSchema = z.object({
     completionTokens: z.number().int().nonnegative(),
     totalTokens: z.number().int().nonnegative()
   })
+});
+
+/**
+ * Pass/fail/skip counts for a persisted run result snapshot.
+ */
+export const runResultSummaryCountsSchema = z.object({
+  passed: z.number().int().nonnegative(),
+  failed: z.number().int().nonnegative(),
+  skipped: z.number().int().nonnegative()
+});
+
+/**
+ * JSON shape for a persisted run result list/detail record.
+ */
+export const runResultRecordSchema = z.object({
+  id: z.string(),
+  kind: z.enum(['collection-run-results', 'request-run-results']),
+  label: z.string(),
+  collectionName: z.string().nullable(),
+  requestName: z.string().nullable(),
+  summary: runResultSummaryCountsSchema,
+  createdAt: timestampSchema,
+  createdByUserId: z.string().nullable()
+}) satisfies z.ZodType<RunResultRecord>;
+
+/**
+ * JSON shape for a run result detail response including payload.
+ */
+export const runResultDetailSchema = runResultRecordSchema.extend({
+  payload: z.record(z.string(), z.unknown())
+}) satisfies z.ZodType<RunResultDetail>;
+
+/**
+ * Request body schema for `POST /run-results`.
+ */
+export const createRunResultBodySchema = z.object({
+  label: z.string().trim().min(1).optional(),
+  payload: z.record(z.string(), z.unknown())
+});
+
+/**
+ * List response wrapper for run results.
+ */
+export const listRunResultsResponseSchema = z.object({
+  runResults: z.array(runResultRecordSchema)
+});
+
+/**
+ * Admin list response wrapper for run results.
+ */
+export const listAdminRunResultsResponseSchema = z.object({
+  runResults: z.array(runResultRecordSchema)
 });

@@ -23,6 +23,10 @@ import {
   listAdminCollectionsResponseSchema,
   listAdminEnvironmentsResponseSchema,
   listAdminSnippetsResponseSchema,
+  listAdminRunResultsResponseSchema,
+  listRunResultsResponseSchema,
+  runResultDetailSchema,
+  createRunResultBodySchema,
   adminEntityConfigSchema,
   createAdminUserResponseSchema,
   createdApiTokenResponseSchema,
@@ -40,6 +44,7 @@ import type {
   CreateHubTokenInput,
   CreateHubUserInput,
   CreateRequestInput,
+  CreateRunResultInput,
   CreateSnippetInput,
   CreatedHubToken,
   CreatedHubUser,
@@ -53,6 +58,8 @@ import type {
   RenameFolderInput,
   ReorderFoldersInput,
   ReorderRequestsInput,
+  RunResultDetail,
+  RunResultRecord,
   SavedRequestRecord,
   TeamHubClientConfig,
   SessionResponse,
@@ -212,8 +219,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-            ? err.message
-            : 'Unknown network error';
+          ? err.message
+          : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 
@@ -509,6 +516,25 @@ export class TeamHubClient implements ITeamHubClient {
   }
 
   /**
+   * Lists all run results for admin management.
+   */
+  async listAdminRunResults(): Promise<RunResultRecord[]> {
+    const result = await this.request('GET', '/admin/run-results', {
+      schema: listAdminRunResultsResponseSchema
+    });
+    return (result as { runResults: RunResultRecord[] }).runResults;
+  }
+
+  /**
+   * Deletes a run result via the admin management API.
+   *
+   * @param id - Run result UUID.
+   */
+  async deleteAdminRunResult(id: string): Promise<void> {
+    await this.request('DELETE', `/admin/run-results/${id}`);
+  }
+
+  /**
    * Lists all hub-offered LLM models for admin user management.
    *
    * Returns an empty list when LLM support is not configured on the hub.
@@ -612,8 +638,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-            ? err.message
-            : 'Unknown network error';
+          ? err.message
+          : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 
@@ -794,6 +820,50 @@ export class TeamHubClient implements ITeamHubClient {
    */
   async deleteSnippet(id: string): Promise<void> {
     await this.request('DELETE', `/snippets/${id}`);
+  }
+
+  /**
+   * Lists run results saved by the authenticated user token.
+   */
+  async listRunResults(): Promise<RunResultRecord[]> {
+    const result = await this.request('GET', '/run-results', {
+      schema: listRunResultsResponseSchema
+    });
+    return (result as { runResults: RunResultRecord[] }).runResults;
+  }
+
+  /**
+   * Saves a run result snapshot to the Team Hub.
+   *
+   * @param input - Optional label and HarborClient export payload.
+   */
+  async createRunResult(input: CreateRunResultInput): Promise<RunResultDetail> {
+    const result = await this.request('POST', '/run-results', {
+      body: input,
+      schema: runResultDetailSchema
+    });
+    return result as RunResultDetail;
+  }
+
+  /**
+   * Loads a run result snapshot by id.
+   *
+   * @param id - Run result UUID.
+   */
+  async getRunResult(id: string): Promise<RunResultDetail> {
+    const result = await this.request('GET', `/run-results/${id}`, {
+      schema: runResultDetailSchema
+    });
+    return result as RunResultDetail;
+  }
+
+  /**
+   * Deletes a run result saved by the authenticated user when permitted.
+   *
+   * @param id - Run result UUID.
+   */
+  async deleteRunResult(id: string): Promise<void> {
+    await this.request('DELETE', `/run-results/${id}`);
   }
 
   /**

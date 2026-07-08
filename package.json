@@ -1,6 +1,6 @@
 {
   "name": "@harborclient/team-hub-api",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "TypeScript client for the HarborClient Team Hub API.",
   "keywords": [
     "harborclient",
@@ -44,6 +44,7 @@
     "provenance": true
   },
   "scripts": {
+    "dev": "tsc -p tsconfig.build.json --watch",
     "build": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "format": "prettier --write .",

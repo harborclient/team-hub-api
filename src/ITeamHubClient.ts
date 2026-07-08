@@ -6,6 +6,7 @@ import type {
   CreateEnvironmentInput,
   CreateFolderInput,
   CreateRequestInput,
+  CreateRunResultInput,
   CreateSnippetInput,
   EnvironmentRecord,
   FolderRecord,
@@ -16,6 +17,8 @@ import type {
   RenameFolderInput,
   ReorderFoldersInput,
   ReorderRequestsInput,
+  RunResultDetail,
+  RunResultRecord,
   SavedRequestRecord,
   SessionResponse,
   SnippetRecord,
@@ -193,6 +196,18 @@ export interface ITeamHubClient {
   deleteAdminSnippet(id: string): Promise<void>;
 
   /**
+   * Lists all run results for admin management.
+   */
+  listAdminRunResults(): Promise<RunResultRecord[]>;
+
+  /**
+   * Deletes a run result regardless of creator ownership.
+   *
+   * @param id - Run result UUID.
+   */
+  deleteAdminRunResult(id: string): Promise<void>;
+
+  /**
    * Lists all hub-offered LLM models for admin user management.
    */
   listAdminLlmModels(): Promise<HubLlmModel[]>;
@@ -316,6 +331,32 @@ export interface ITeamHubClient {
    * @param id - Snippet UUID.
    */
   deleteSnippet(id: string): Promise<void>;
+
+  /**
+   * Lists run results saved by the authenticated user token.
+   */
+  listRunResults(): Promise<RunResultRecord[]>;
+
+  /**
+   * Saves a run result snapshot to the Team Hub.
+   *
+   * @param input - Optional label and HarborClient export payload.
+   */
+  createRunResult(input: CreateRunResultInput): Promise<RunResultDetail>;
+
+  /**
+   * Loads a run result snapshot by id.
+   *
+   * @param id - Run result UUID.
+   */
+  getRunResult(id: string): Promise<RunResultDetail>;
+
+  /**
+   * Deletes a run result saved by the authenticated user when permitted.
+   *
+   * @param id - Run result UUID.
+   */
+  deleteRunResult(id: string): Promise<void>;
 
   /**
    * Lists folders in a collection ordered by sort order, then name.

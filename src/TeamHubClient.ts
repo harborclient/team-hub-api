@@ -71,7 +71,12 @@ import type {
   UpdateSnippetInput,
   ReloadConfigResponse
 } from './types.js';
-import type { ChatStepMessage, ChatStepResult, HubLlmModel } from './appTypes.js';
+import type {
+  ChatStepMessage,
+  ChatStepResult,
+  HubLlmModel,
+  ListHubLlmModelsResponse
+} from './appTypes.js';
 
 /**
  * Default request timeout when {@link TeamHubClientConfig.requestTimeoutMs} is omitted.
@@ -218,8 +223,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-            ? err.message
-            : 'Unknown network error';
+          ? err.message
+          : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 
@@ -538,15 +543,15 @@ export class TeamHubClient implements ITeamHubClient {
    *
    * Returns an empty list when LLM support is not configured on the hub.
    */
-  async listAdminLlmModels(): Promise<HubLlmModel[]> {
+  async listAdminLlmModels(): Promise<ListHubLlmModelsResponse> {
     try {
       const result = await this.request('GET', '/admin/llm/models', {
         schema: listHubLlmModelsResponseSchema
       });
-      return (result as { models: HubLlmModel[] }).models;
+      return result as ListHubLlmModelsResponse;
     } catch (error) {
       if (error instanceof TeamHubClientError && error.status === 503) {
-        return [];
+        return { models: [], capabilities: { openai: false } };
       }
 
       throw error;
@@ -603,13 +608,13 @@ export class TeamHubClient implements ITeamHubClient {
    * Loads collection, environment, and LLM model options for admin user forms.
    */
   async listAdminResourceOptions(): Promise<TeamHubAdminResourceOptions> {
-    const [collections, environments, models] = await Promise.all([
+    const [collections, environments, llmListing] = await Promise.all([
       this.listAdminCollections(),
       this.listAdminEnvironments(),
       this.listAdminLlmModels()
     ]);
 
-    return { collections, environments, models };
+    return { collections, environments, models: llmListing.models };
   }
 
   /**
@@ -637,8 +642,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-            ? err.message
-            : 'Unknown network error';
+          ? err.message
+          : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 
@@ -1005,11 +1010,11 @@ export class TeamHubClient implements ITeamHubClient {
   /**
    * Lists hub-offered LLM models visible to the authenticated token.
    */
-  async listLlmModels(): Promise<HubLlmModel[]> {
+  async listLlmModels(): Promise<ListHubLlmModelsResponse> {
     const result = await this.request('GET', '/llm/models', {
       schema: listHubLlmModelsResponseSchema
     });
-    return (result as { models: HubLlmModel[] }).models;
+    return result as ListHubLlmModelsResponse;
   }
 
   /**

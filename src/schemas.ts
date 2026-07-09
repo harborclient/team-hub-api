@@ -417,10 +417,18 @@ export const hubLlmModelSchema = z.object({
 });
 
 /**
+ * JSON shape for hub LLM capability flags.
+ */
+export const hubLlmCapabilitiesSchema = z.object({
+  openai: z.boolean()
+});
+
+/**
  * JSON shape for GET /llm/models response body.
  */
 export const listHubLlmModelsResponseSchema = z.object({
-  models: z.array(hubLlmModelSchema)
+  models: z.array(hubLlmModelSchema),
+  capabilities: hubLlmCapabilitiesSchema
 });
 
 /**

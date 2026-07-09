@@ -500,7 +500,8 @@ describe('TeamHubClient', () => {
         .mockResolvedValueOnce(
           new Response(
             JSON.stringify({
-              models: [{ id: 'gpt-4o', label: 'GPT-4o', provider: 'openai' }]
+              models: [{ id: 'gpt-4o', label: 'GPT-4o', provider: 'openai' }],
+              capabilities: { openai: true }
             }),
             {
               status: 200,
@@ -797,7 +798,8 @@ describe('TeamHubClient', () => {
       const fetchMock = vi.fn().mockResolvedValue(
         new Response(
           JSON.stringify({
-            models: [{ id: 'gpt-4o', label: 'GPT-4o', provider: 'openai' }]
+            models: [{ id: 'gpt-4o', label: 'GPT-4o', provider: 'openai' }],
+            capabilities: { openai: true }
           }),
           {
             status: 200,
@@ -808,9 +810,12 @@ describe('TeamHubClient', () => {
       globalThis.fetch = fetchMock;
 
       const client = createClient();
-      const models = await client.listLlmModels();
+      const result = await client.listLlmModels();
 
-      expect(models).toEqual([{ id: 'gpt-4o', label: 'GPT-4o', provider: 'openai' }]);
+      expect(result).toEqual({
+        models: [{ id: 'gpt-4o', label: 'GPT-4o', provider: 'openai' }],
+        capabilities: { openai: true }
+      });
       expect(fetchMock).toHaveBeenCalledWith(
         'http://127.0.0.1:8788/llm/models',
         expect.objectContaining({ method: 'GET' })

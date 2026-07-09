@@ -35,7 +35,8 @@ import type {
   UpdateSnippetInput,
   ReloadConfigResponse
 } from './types.js';
-import type { HubLlmModel } from './appTypes.js';
+import type { ChatStepResult, HubLlmModel, ListHubLlmModelsResponse } from './appTypes.js';
+import type { HubChatStepRequest } from './TeamHubClient.js';
 
 /**
  * Typed HTTP client for HarborClient Server entity and health routes.
@@ -210,7 +211,17 @@ export interface ITeamHubClient {
   /**
    * Lists all hub-offered LLM models for admin user management.
    */
-  listAdminLlmModels(): Promise<HubLlmModel[]>;
+  listAdminLlmModels(): Promise<ListHubLlmModelsResponse>;
+
+  /**
+   * Lists hub-offered LLM models visible to the authenticated token.
+   */
+  listLlmModels(): Promise<ListHubLlmModelsResponse>;
+
+  /**
+   * Runs one hub-proxied LLM completion step.
+   */
+  completeChatStep(input: HubChatStepRequest): Promise<ChatStepResult>;
 
   /**
    * Returns whether the Team Hub server has LLM support configured.

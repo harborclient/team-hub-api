@@ -1,3 +1,4 @@
+export type { HubLlmCapabilities, HubLlmModel, ListHubLlmModelsResponse } from './appTypes.js';
 export type { ITeamHubClient } from './ITeamHubClient.js';
 export {
   DEFAULT_TEAM_HUB_REQUEST_TIMEOUT_MS,

@@ -134,6 +134,31 @@ export interface HubLlmModel {
 }
 
 /**
+ * Hub LLM capability flags advertised by GET /llm/models.
+ */
+export interface HubLlmCapabilities {
+  /**
+   * When true, the hub has an OpenAI provider key configured for embeddings and OpenAI models.
+   */
+  openai: boolean;
+}
+
+/**
+ * Response body for GET /llm/models and GET /admin/llm/models.
+ */
+export interface ListHubLlmModelsResponse {
+  /**
+   * Models the authenticated user or admin may assign or use.
+   */
+  models: HubLlmModel[];
+
+  /**
+   * Hub-level LLM infrastructure capabilities.
+   */
+  capabilities: HubLlmCapabilities;
+}
+
+/**
  * Result of one LLM completion step.
  */
 export interface ChatStepResult {

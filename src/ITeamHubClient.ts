@@ -35,7 +35,7 @@ import type {
   UpdateSnippetInput,
   ReloadConfigResponse
 } from './types.js';
-import type { ChatStepResult, HubLlmModel, ListHubLlmModelsResponse } from './appTypes.js';
+import type { ChatStepResult, ListHubLlmModelsResponse } from './appTypes.js';
 import type { HubChatStepRequest } from './TeamHubClient.js';
 
 /**

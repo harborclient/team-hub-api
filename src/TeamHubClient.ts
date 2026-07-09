@@ -71,12 +71,7 @@ import type {
   UpdateSnippetInput,
   ReloadConfigResponse
 } from './types.js';
-import type {
-  ChatStepMessage,
-  ChatStepResult,
-  HubLlmModel,
-  ListHubLlmModelsResponse
-} from './appTypes.js';
+import type { ChatStepMessage, ChatStepResult, ListHubLlmModelsResponse } from './appTypes.js';
 
 /**
  * Default request timeout when {@link TeamHubClientConfig.requestTimeoutMs} is omitted.
@@ -223,8 +218,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-          ? err.message
-          : 'Unknown network error';
+            ? err.message
+            : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 
@@ -642,8 +637,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-          ? err.message
-          : 'Unknown network error';
+            ? err.message
+            : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 

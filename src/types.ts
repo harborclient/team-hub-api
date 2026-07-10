@@ -27,8 +27,10 @@ export interface TeamHubClientConfig {
 
   /**
    * Bearer token prefixed with `hbk_` for protected routes.
+   *
+   * Omit when calling only public routes such as invitation preview and redeem.
    */
-  token: string;
+  token?: string;
 
   /**
    * Request timeout in milliseconds; defaults to 30 seconds when omitted.
@@ -149,6 +151,11 @@ export interface HubUserRecord {
    * Environment ids the user may access, or `['*']` for all environments.
    */
   environmentAccess: string[];
+
+  /**
+   * Snippet ids the user may access, or `['*']` for all snippets.
+   */
+  snippetAccess: string[];
 
   /**
    * When true, the user may call hub-proxied LLM routes.
@@ -306,6 +313,11 @@ export interface UpdateHubUserInput {
   environmentAccess?: string[];
 
   /**
+   * Replacement snippet access list.
+   */
+  snippetAccess?: string[];
+
+  /**
    * Whether the user may use hub-proxied LLM routes.
    */
   llmAccess?: boolean;
@@ -344,6 +356,11 @@ export interface CreateHubUserInput {
    * Environment access list; admins store an empty array.
    */
   environmentAccess?: string[];
+
+  /**
+   * Snippet access list; admins store an empty array.
+   */
+  snippetAccess?: string[];
 
   /**
    * Whether the user may use hub-proxied LLM routes.
@@ -429,6 +446,176 @@ export interface CreateHubTokenInput {
    * Human-readable label for the new token.
    */
   name: string;
+}
+
+/**
+ * Computed lifecycle status for an onboarding invitation.
+ */
+export type HubInvitationStatus = 'pending' | 'redeemed' | 'revoked' | 'expired';
+
+/**
+ * Onboarding invitation metadata returned by admin and preview routes.
+ */
+export interface HubInvitationRecord {
+  /**
+   * Stable invitation record identifier.
+   */
+  id: string;
+
+  /**
+   * Invited user account identifier.
+   */
+  userId: string;
+
+  /**
+   * Non-secret prefix shown in operator listings.
+   */
+  codePrefix: string;
+
+  /**
+   * ISO 8601 timestamp when the invitation expires.
+   */
+  expiresAt: string;
+
+  /**
+   * ISO 8601 timestamp when the invitation was redeemed, if ever.
+   */
+  redeemedAt: string | null;
+
+  /**
+   * ISO 8601 timestamp when the invitation was revoked, if ever.
+   */
+  revokedAt: string | null;
+
+  /**
+   * ISO 8601 timestamp when the invitation was created.
+   */
+  createdAt: string;
+
+  /**
+   * Derived lifecycle status for operator UI.
+   */
+  status: HubInvitationStatus;
+}
+
+/**
+ * Fields required to create an invited user and onboarding invitation.
+ */
+export interface CreateInvitedHubUserInput extends CreateHubUserInput {
+  /**
+   * Hours until the invitation expires; server default applies when omitted.
+   */
+  expiresInHours?: number;
+}
+
+/**
+ * Response from creating an invited user or reissuing an invitation.
+ */
+export interface CreatedInvitedHubUser {
+  /**
+   * Invited user account.
+   */
+  user: HubUserRecord;
+
+  /**
+   * Metadata for the onboarding invitation.
+   */
+  invitation: HubInvitationRecord;
+
+  /**
+   * One-time plaintext invitation secret.
+   */
+  secret: string;
+}
+
+/**
+ * Request body for `POST /auth/invitations/preview`.
+ */
+export interface PreviewHubInvitationInput {
+  /**
+   * Invitation secret supplied by the operator or invitee.
+   */
+  secret: string;
+}
+
+/**
+ * User details returned by invitation preview without issuing a token.
+ */
+export interface HubInvitationPreviewUser {
+  /**
+   * Display name for the invited account.
+   */
+  name: string;
+
+  /**
+   * Role that will be granted when the invitation is redeemed.
+   */
+  role: HubUserRole;
+
+  /**
+   * Collection ids the invited user may access, or `['*']` for all collections.
+   */
+  collectionAccess: string[];
+
+  /**
+   * Environment ids the invited user may access, or `['*']` for all environments.
+   */
+  environmentAccess: string[];
+
+  /**
+   * Snippet ids the invited user may access, or `['*']` for all snippets.
+   */
+  snippetAccess: string[];
+
+  /**
+   * Whether the invited user may call hub-proxied LLM routes.
+   */
+  llmAccess: boolean;
+
+  /**
+   * LLM model ids the invited user may use, or `['*']` for all hub-offered models.
+   */
+  llmModels: string[];
+}
+
+/**
+ * Response body from `POST /auth/invitations/preview`.
+ */
+export interface HubInvitationPreview {
+  /**
+   * Non-sensitive invited user details for confirmation UI.
+   */
+  user: HubInvitationPreviewUser;
+
+  /**
+   * ISO 8601 timestamp when the invitation expires.
+   */
+  expiresAt: string;
+}
+
+/**
+ * Request body for `POST /auth/invitations/redeem`.
+ */
+export interface RedeemHubInvitationInput {
+  /**
+   * Invitation secret supplied by the invitee.
+   */
+  secret: string;
+
+  /**
+   * Human-readable label for the issued API token, when customizing the default.
+   */
+  tokenName?: string;
+}
+
+/**
+ * Request body for `POST /admin/users/:id/invitations`.
+ */
+export interface CreateUserInvitationInput {
+  /**
+   * Hours until the replacement invitation expires; server default applies when omitted.
+   */
+  expiresInHours?: number;
 }
 
 /**

@@ -154,6 +154,7 @@ describe('TeamHubClient', () => {
         role: 'user' as const,
         collectionAccess: ['*'],
         environmentAccess: ['*'],
+        snippetAccess: ['*'],
         llmAccess: true,
         llmModels: ['*'],
         llmMonthlyTokenLimit: 100000,
@@ -194,6 +195,7 @@ describe('TeamHubClient', () => {
         role: 'user' as const,
         collectionAccess: ['*'],
         environmentAccess: ['*'],
+        snippetAccess: ['*'],
         llmAccess: true,
         llmModels: ['*'],
         llmMonthlyTokenLimit: 100000,
@@ -258,6 +260,7 @@ describe('TeamHubClient', () => {
           role: 'user' as const,
           collectionAccess: ['*'],
           environmentAccess: ['*'],
+          snippetAccess: ['*'],
           llmAccess: false,
           llmModels: [],
           llmMonthlyTokenLimit: null,
@@ -289,7 +292,8 @@ describe('TeamHubClient', () => {
         name: 'alice',
         role: 'user',
         collectionAccess: ['*'],
-        environmentAccess: ['*']
+        environmentAccess: ['*'],
+        snippetAccess: ['*']
       });
 
       expect(created).toEqual(payload);
@@ -301,7 +305,8 @@ describe('TeamHubClient', () => {
             name: 'alice',
             role: 'user',
             collectionAccess: ['*'],
-            environmentAccess: ['*']
+            environmentAccess: ['*'],
+            snippetAccess: ['*']
           })
         })
       );
@@ -394,6 +399,277 @@ describe('TeamHubClient', () => {
           method: 'DELETE'
         })
       );
+    });
+  });
+
+  describe('createAdminInvitedUser', () => {
+    it('sends bearer auth and parses the created user and invitation payload', async () => {
+      const payload = {
+        user: {
+          id: '550e8400-e29b-41d4-a716-446655440000',
+          name: 'alice',
+          role: 'user' as const,
+          collectionAccess: ['*'],
+          environmentAccess: ['*'],
+          snippetAccess: ['*'],
+          llmAccess: false,
+          llmModels: [],
+          llmMonthlyTokenLimit: null,
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z'
+        },
+        invitation: {
+          id: '770e8400-e29b-41d4-a716-446655440003',
+          userId: '550e8400-e29b-41d4-a716-446655440000',
+          codePrefix: 'hbi_AbCd',
+          expiresAt: '2026-01-08T00:00:00.000Z',
+          redeemedAt: null,
+          revokedAt: null,
+          createdAt: '2026-01-01T00:00:00.000Z',
+          status: 'pending' as const
+        },
+        secret: 'hbi_secret_value'
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(payload), {
+          status: 201,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      const created = await client.createAdminInvitedUser({
+        name: 'alice',
+        role: 'user',
+        collectionAccess: ['*'],
+        environmentAccess: ['*'],
+        snippetAccess: ['*'],
+        expiresInHours: 168
+      });
+
+      expect(created).toEqual(payload);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/admin/invited-users',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({
+            name: 'alice',
+            role: 'user',
+            collectionAccess: ['*'],
+            environmentAccess: ['*'],
+            snippetAccess: ['*'],
+            expiresInHours: 168
+          })
+        })
+      );
+    });
+  });
+
+  describe('createAdminUserInvitation', () => {
+    it('sends bearer auth and parses a replacement invitation payload', async () => {
+      const payload = {
+        user: {
+          id: '550e8400-e29b-41d4-a716-446655440000',
+          name: 'alice',
+          role: 'user' as const,
+          collectionAccess: ['*'],
+          environmentAccess: ['*'],
+          snippetAccess: ['*'],
+          llmAccess: false,
+          llmModels: [],
+          llmMonthlyTokenLimit: null,
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z'
+        },
+        invitation: {
+          id: '880e8400-e29b-41d4-a716-446655440004',
+          userId: '550e8400-e29b-41d4-a716-446655440000',
+          codePrefix: 'hbi_EfGh',
+          expiresAt: '2026-01-15T00:00:00.000Z',
+          redeemedAt: null,
+          revokedAt: null,
+          createdAt: '2026-01-02T00:00:00.000Z',
+          status: 'pending' as const
+        },
+        secret: 'hbi_reissue_secret'
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(payload), {
+          status: 201,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      const created = await client.createAdminUserInvitation(
+        '550e8400-e29b-41d4-a716-446655440000',
+        { expiresInHours: 72 }
+      );
+
+      expect(created).toEqual(payload);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/admin/users/550e8400-e29b-41d4-a716-446655440000/invitations',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ expiresInHours: 72 })
+        })
+      );
+    });
+  });
+
+  describe('listAdminInvitations', () => {
+    it('sends bearer auth and parses the admin invitation list', async () => {
+      const invitation = {
+        id: '770e8400-e29b-41d4-a716-446655440003',
+        userId: '550e8400-e29b-41d4-a716-446655440000',
+        codePrefix: 'hbi_AbCd',
+        expiresAt: '2026-01-08T00:00:00.000Z',
+        redeemedAt: null,
+        revokedAt: null,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        status: 'pending' as const
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ invitations: [invitation] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      const invitations = await client.listAdminInvitations();
+
+      expect(invitations).toEqual([invitation]);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/admin/invitations',
+        expect.objectContaining({
+          method: 'GET'
+        })
+      );
+    });
+  });
+
+  describe('revokeAdminInvitation', () => {
+    it('sends bearer auth and accepts 204 responses', async () => {
+      const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      await client.revokeAdminInvitation('770e8400-e29b-41d4-a716-446655440003');
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/admin/invitations/770e8400-e29b-41d4-a716-446655440003',
+        expect.objectContaining({
+          method: 'DELETE'
+        })
+      );
+    });
+  });
+
+  describe('previewInvitation', () => {
+    it('posts the invitation secret without bearer auth', async () => {
+      const payload = {
+        user: {
+          name: 'alice',
+          role: 'user' as const,
+          collectionAccess: ['*'],
+          environmentAccess: ['*'],
+          snippetAccess: ['*'],
+          llmAccess: false,
+          llmModels: []
+        },
+        expiresAt: '2026-01-08T00:00:00.000Z'
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(payload), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = new TeamHubClient({ baseUrl });
+      const preview = await client.previewInvitation({ secret: 'hbi_secret_value' });
+
+      expect(preview).toEqual(payload);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/auth/invitations/preview',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.not.objectContaining({
+            Authorization: expect.any(String)
+          }),
+          body: JSON.stringify({ secret: 'hbi_secret_value' })
+        })
+      );
+    });
+  });
+
+  describe('redeemInvitation', () => {
+    it('posts the invitation secret and optional token name without bearer auth', async () => {
+      const payload = {
+        token: {
+          id: '660e8400-e29b-41d4-a716-446655440001',
+          userId: '550e8400-e29b-41d4-a716-446655440000',
+          name: 'Desktop',
+          tokenPrefix: 'hbk_AbCd1234',
+          createdAt: '2026-01-01T00:00:00.000Z',
+          lastUsedAt: null,
+          revokedAt: null
+        },
+        secret: 'hbk_secret_value'
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(payload), {
+          status: 201,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = new TeamHubClient({ baseUrl });
+      const redeemed = await client.redeemInvitation({
+        secret: 'hbi_secret_value',
+        tokenName: 'Desktop'
+      });
+
+      expect(redeemed).toEqual(payload);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/auth/invitations/redeem',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.not.objectContaining({
+            Authorization: expect.any(String)
+          }),
+          body: JSON.stringify({ secret: 'hbi_secret_value', tokenName: 'Desktop' })
+        })
+      );
+    });
+  });
+
+  describe('authenticated requests without a token', () => {
+    it('throws TeamHubClientError before calling fetch', async () => {
+      const fetchMock = vi.fn();
+      globalThis.fetch = fetchMock;
+
+      const client = new TeamHubClient({ baseUrl });
+
+      await expect(client.getSession()).rejects.toMatchObject({
+        name: 'TeamHubClientError',
+        message: 'Bearer token is required for authenticated requests',
+        status: 0,
+        method: 'GET',
+        path: '/auth/session'
+      });
+      expect(fetchMock).not.toHaveBeenCalled();
     });
   });
 

@@ -27,10 +27,17 @@ import type {
   UpdateEnvironmentInput,
   UpdateHubUserInput,
   CreateHubUserInput,
+  CreateInvitedHubUserInput,
+  CreateUserInvitationInput,
+  CreatedInvitedHubUser,
   HubApiTokenRecord,
   CreatedHubUser,
   CreateHubTokenInput,
   CreatedHubToken,
+  HubInvitationPreview,
+  HubInvitationRecord,
+  PreviewHubInvitationInput,
+  RedeemHubInvitationInput,
   UpdateRequestInput,
   UpdateSnippetInput,
   ReloadConfigResponse
@@ -66,6 +73,50 @@ export interface ITeamHubClient {
    * @param input - User fields for the new account.
    */
   createAdminUser(input: CreateHubUserInput): Promise<CreatedHubUser>;
+
+  /**
+   * Creates a Team Hub user account and a single-use onboarding invitation.
+   *
+   * @param input - User fields and optional invitation expiry for the new account.
+   */
+  createAdminInvitedUser(input: CreateInvitedHubUserInput): Promise<CreatedInvitedHubUser>;
+
+  /**
+   * Issues a replacement onboarding invitation for an existing user account.
+   *
+   * @param userId - User account identifier.
+   * @param input - Optional invitation expiry override.
+   */
+  createAdminUserInvitation(
+    userId: string,
+    input?: CreateUserInvitationInput
+  ): Promise<CreatedInvitedHubUser>;
+
+  /**
+   * Lists onboarding invitations for operator review and recovery.
+   */
+  listAdminInvitations(): Promise<HubInvitationRecord[]>;
+
+  /**
+   * Revokes a pending onboarding invitation so it can no longer be redeemed.
+   *
+   * @param id - Invitation record identifier.
+   */
+  revokeAdminInvitation(id: string): Promise<void>;
+
+  /**
+   * Returns invited user details for confirmation without consuming the invitation.
+   *
+   * @param input - Invitation secret supplied by the operator or invitee.
+   */
+  previewInvitation(input: PreviewHubInvitationInput): Promise<HubInvitationPreview>;
+
+  /**
+   * Consumes a pending invitation and returns a one-time permanent API token secret.
+   *
+   * @param input - Invitation secret and optional token label.
+   */
+  redeemInvitation(input: RedeemHubInvitationInput): Promise<CreatedHubToken>;
 
   /**
    * Updates a Team Hub user account via the management API.

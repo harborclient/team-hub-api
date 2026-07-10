@@ -218,6 +218,7 @@ export const hubUserRecordSchema = z.object({
   role: z.enum(['admin', 'user']),
   collectionAccess: z.array(z.string()),
   environmentAccess: z.array(z.string()),
+  snippetAccess: z.array(z.string()),
   llmAccess: z.boolean(),
   llmModels: z.array(z.string()),
   llmMonthlyTokenLimit: z.number().int().nonnegative().nullable(),
@@ -293,6 +294,7 @@ export const updateAdminUserBodySchema = z.object({
   role: z.enum(['admin', 'user']).optional(),
   collectionAccess: z.array(z.string()).optional(),
   environmentAccess: z.array(z.string()).optional(),
+  snippetAccess: z.array(z.string()).optional(),
   llmAccess: z.boolean().optional(),
   llmModels: z.array(z.string()).optional(),
   llmMonthlyTokenLimit: z.number().int().nonnegative().nullable().optional()
@@ -306,6 +308,7 @@ export const createAdminUserBodySchema = z.object({
   role: z.enum(['admin', 'user']),
   collectionAccess: z.array(z.string()).optional(),
   environmentAccess: z.array(z.string()).optional(),
+  snippetAccess: z.array(z.string()).optional(),
   llmAccess: z.boolean().optional(),
   llmModels: z.array(z.string()).optional(),
   llmMonthlyTokenLimit: z.number().int().nonnegative().nullable().optional()
@@ -510,4 +513,88 @@ export const listRunResultsResponseSchema = z.object({
  */
 export const listAdminRunResultsResponseSchema = z.object({
   runResults: z.array(runResultRecordSchema)
+});
+
+/**
+ * Computed invitation lifecycle status exposed to admin clients.
+ */
+export const invitationStatusSchema = z.enum(['pending', 'redeemed', 'revoked', 'expired']);
+
+/**
+ * Invitation metadata returned by admin routes (never includes the secret hash).
+ */
+export const hubInvitationRecordSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  codePrefix: z.string(),
+  expiresAt: timestampSchema,
+  redeemedAt: timestampSchema.nullable(),
+  revokedAt: timestampSchema.nullable(),
+  createdAt: timestampSchema,
+  status: invitationStatusSchema
+});
+
+/**
+ * Request body schema for `POST /admin/invited-users`.
+ */
+export const createAdminInvitedUserBodySchema = createAdminUserBodySchema.extend({
+  expiresInHours: z.number().int().positive().optional()
+});
+
+/**
+ * Request body schema for `POST /admin/users/:id/invitations`.
+ */
+export const createUserInvitationBodySchema = z.object({
+  expiresInHours: z.number().int().positive().optional()
+});
+
+/**
+ * Response body schema for `POST /admin/invited-users` and `POST /admin/users/:id/invitations`.
+ */
+export const createAdminInvitationResponseSchema = z.object({
+  user: hubUserRecordSchema,
+  invitation: hubInvitationRecordSchema,
+  secret: z.string()
+});
+
+/**
+ * Response body schema for `GET /admin/invitations`.
+ */
+export const listAdminInvitationsResponseSchema = z.object({
+  invitations: z.array(hubInvitationRecordSchema)
+});
+
+/**
+ * Request body schema for public invitation preview and redeem routes.
+ */
+export const invitationSecretBodySchema = z.object({
+  secret: z.string().trim().min(1)
+});
+
+/**
+ * Request body schema for `POST /auth/invitations/redeem`.
+ */
+export const redeemInvitationBodySchema = invitationSecretBodySchema.extend({
+  tokenName: z.string().trim().min(1).optional()
+});
+
+/**
+ * User details returned by invitation preview without issuing a token.
+ */
+export const hubInvitationPreviewUserSchema = z.object({
+  name: z.string(),
+  role: z.enum(['admin', 'user']),
+  collectionAccess: z.array(z.string()),
+  environmentAccess: z.array(z.string()),
+  snippetAccess: z.array(z.string()),
+  llmAccess: z.boolean(),
+  llmModels: z.array(z.string())
+});
+
+/**
+ * Response body schema for `POST /auth/invitations/preview`.
+ */
+export const previewInvitationResponseSchema = z.object({
+  user: hubInvitationPreviewUserSchema,
+  expiresAt: timestampSchema
 });

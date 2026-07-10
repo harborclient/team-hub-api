@@ -31,7 +31,10 @@ import {
   createdApiTokenResponseSchema,
   listAdminTokensResponseSchema,
   hubUserRecordSchema,
-  reloadConfigResponseSchema
+  reloadConfigResponseSchema,
+  createAdminInvitationResponseSchema,
+  listAdminInvitationsResponseSchema,
+  previewInvitationResponseSchema
 } from './schemas.js';
 import type {
   AdminResourceOption,
@@ -45,15 +48,22 @@ import type {
   CreateRequestInput,
   CreateRunResultInput,
   CreateSnippetInput,
+  CreateUserInvitationInput,
   CreatedHubToken,
   CreatedHubUser,
+  CreatedInvitedHubUser,
+  CreateInvitedHubUserInput,
   EnvironmentRecord,
   FolderRecord,
   HealthResponse,
   HubApiTokenRecord,
+  HubInvitationPreview,
+  HubInvitationRecord,
   HubUserRecord,
   MoveRequestInput,
   PluginSourcesResponse,
+  PreviewHubInvitationInput,
+  RedeemHubInvitationInput,
   RenameFolderInput,
   ReorderFoldersInput,
   ReorderRequestsInput,
@@ -128,7 +138,7 @@ interface RequestOptions<T> {
  */
 export class TeamHubClient implements ITeamHubClient {
   private readonly baseUrl: string;
-  private readonly token: string;
+  private readonly token: string | undefined;
   private readonly requestTimeoutMs: number;
 
   /**
@@ -196,6 +206,14 @@ export class TeamHubClient implements ITeamHubClient {
     };
 
     if (auth) {
+      if (!this.token) {
+        throw new TeamHubClientError('Bearer token is required for authenticated requests', {
+          status: 0,
+          method,
+          path
+        });
+      }
+
       headers.Authorization = `Bearer ${this.token}`;
     }
 
@@ -305,6 +323,83 @@ export class TeamHubClient implements ITeamHubClient {
       schema: createAdminUserResponseSchema
     });
     return result as CreatedHubUser;
+  }
+
+  /**
+   * Creates a Team Hub user account and a single-use onboarding invitation.
+   *
+   * @param input - User fields and optional invitation expiry for the new account.
+   */
+  async createAdminInvitedUser(input: CreateInvitedHubUserInput): Promise<CreatedInvitedHubUser> {
+    const result = await this.request('POST', '/admin/invited-users', {
+      body: input,
+      schema: createAdminInvitationResponseSchema
+    });
+    return result as CreatedInvitedHubUser;
+  }
+
+  /**
+   * Issues a replacement onboarding invitation for an existing user account.
+   *
+   * @param userId - User account identifier.
+   * @param input - Optional invitation expiry override.
+   */
+  async createAdminUserInvitation(
+    userId: string,
+    input: CreateUserInvitationInput = {}
+  ): Promise<CreatedInvitedHubUser> {
+    const result = await this.request('POST', `/admin/users/${userId}/invitations`, {
+      body: input,
+      schema: createAdminInvitationResponseSchema
+    });
+    return result as CreatedInvitedHubUser;
+  }
+
+  /**
+   * Lists onboarding invitations for operator review and recovery.
+   */
+  async listAdminInvitations(): Promise<HubInvitationRecord[]> {
+    const result = await this.request('GET', '/admin/invitations', {
+      schema: listAdminInvitationsResponseSchema
+    });
+    return (result as { invitations: HubInvitationRecord[] }).invitations;
+  }
+
+  /**
+   * Revokes a pending onboarding invitation so it can no longer be redeemed.
+   *
+   * @param id - Invitation record identifier.
+   */
+  async revokeAdminInvitation(id: string): Promise<void> {
+    await this.request('DELETE', `/admin/invitations/${id}`);
+  }
+
+  /**
+   * Returns invited user details for confirmation without consuming the invitation.
+   *
+   * @param input - Invitation secret supplied by the operator or invitee.
+   */
+  async previewInvitation(input: PreviewHubInvitationInput): Promise<HubInvitationPreview> {
+    const result = await this.request('POST', '/auth/invitations/preview', {
+      auth: false,
+      body: input,
+      schema: previewInvitationResponseSchema
+    });
+    return result as HubInvitationPreview;
+  }
+
+  /**
+   * Consumes a pending invitation and returns a one-time permanent API token secret.
+   *
+   * @param input - Invitation secret and optional token label.
+   */
+  async redeemInvitation(input: RedeemHubInvitationInput): Promise<CreatedHubToken> {
+    const result = await this.request('POST', '/auth/invitations/redeem', {
+      auth: false,
+      body: input,
+      schema: createdApiTokenResponseSchema
+    });
+    return result as CreatedHubToken;
   }
 
   /**

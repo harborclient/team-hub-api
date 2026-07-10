@@ -2,7 +2,10 @@
 
 ## Unreleased
 
+## 0.3.5 - 2026-07-10
+
+- Add shared Team Hub invitation link helpers for HTTPS join URLs and harborclient:// deep links.
+
 ## 0.3.4 - 2026-07-10
 
 - Add Team Hub onboarding invitation client methods, types, and Zod schemas; make `TeamHubClientConfig.token` optional for public invitation routes.
-

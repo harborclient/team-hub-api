@@ -11,3 +11,5 @@
 | Saved requests | `listRequests`, `createRequest`, `updateRequest`, `deleteRequest`, `reorderRequests`, `moveRequest`                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 See HarborClient Team Hub [API Endpoints](https://harborclient.github.io/team-hub/endpoints.html) for request and response shapes.
+
+Shared invitation link helpers live in `invitationLinks.ts`: `buildTeamHubJoinUrl`, `parseTeamHubJoinUrl`, `buildTeamHubJoinDeepLink`, and `parseTeamHubJoinDeepLink`.

@@ -10,6 +10,20 @@ export { toTeamHubAuth, type TeamHubAuthConfig, type TeamHubAuthType } from './a
 export { isTeamHubCollectionDeleteForbiddenError } from './isTeamHubCollectionDeleteForbiddenError.js';
 export { isTeamHubSnippetsUnsupportedError } from './isTeamHubSnippetsUnsupportedError.js';
 export { isTeamHubSnippetsForbiddenError } from './isTeamHubSnippetsForbiddenError.js';
+export {
+  HARBOR_PROTOCOL,
+  INVITATION_CODE_PREFIX,
+  TEAM_HUB_JOIN_QUERY_KEYS,
+  buildTeamHubJoinDeepLink,
+  buildTeamHubJoinUrl,
+  isInvitationCodeFormat,
+  isTeamHubBaseUrl,
+  normalizeTeamHubBaseUrl,
+  parseTeamHubJoinDeepLink,
+  parseTeamHubJoinUrl,
+  summarizeInvitationAccess,
+  type InvitationLinkParams
+} from './invitationLinks.js';
 export type {
   AdminEntityConfig,
   AdminResourceOption,

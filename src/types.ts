@@ -1119,6 +1119,111 @@ export interface MoveRequestInput {
 }
 
 /**
+ * Markdown document record returned by HarborClient Server entity routes.
+ */
+export interface DocumentRecord {
+  /**
+   * Document UUID.
+   */
+  id: string;
+
+  /**
+   * Parent collection UUID.
+   */
+  collectionId: string;
+
+  /**
+   * Parent folder UUID, or `null` when at the collection root.
+   */
+  folderId: string | null;
+
+  /**
+   * Display name shown in the collection tree.
+   */
+  name: string;
+
+  /**
+   * Markdown body content.
+   */
+  content: string;
+
+  /**
+   * Zero-based sort order within the folder or collection root.
+   */
+  sortOrder: number;
+
+  /**
+   * ISO 8601 timestamp when the document was created.
+   */
+  createdAt: string;
+
+  /**
+   * ISO 8601 timestamp when the document was last updated.
+   */
+  updatedAt: string;
+}
+
+/**
+ * Request body for `POST /collections/:collectionId/documents`.
+ */
+export interface CreateDocumentInput {
+  /**
+   * Display name for the document.
+   */
+  name: string;
+
+  /**
+   * Markdown body content.
+   */
+  content: string;
+
+  /**
+   * Parent folder UUID, or omitted/`null` for the collection root.
+   */
+  folderId?: string | null;
+}
+
+/**
+ * Request body for `PUT /documents/:id`.
+ */
+export interface UpdateDocumentInput extends CreateDocumentInput {
+  /**
+   * Parent collection UUID (required on update).
+   */
+  collectionId: string;
+}
+
+/**
+ * Request body for `PUT /collections/:collectionId/documents/reorder`.
+ */
+export interface ReorderDocumentsInput {
+  /**
+   * Folder UUID, or `null` to reorder documents at the collection root.
+   */
+  folderId: string | null;
+
+  /**
+   * Document ids in the desired display order.
+   */
+  orderedDocumentIds: string[];
+}
+
+/**
+ * Request body for `PUT /documents/:id/move`.
+ */
+export interface MoveDocumentInput {
+  /**
+   * Destination folder UUID, or `null` for the collection root.
+   */
+  folderId: string | null;
+
+  /**
+   * Zero-based index within the destination folder or root.
+   */
+  index: number;
+}
+
+/**
  * Discriminator for collection-wide or single-request run result snapshots.
  */
 export type RunResultKind = 'collection-run-results' | 'request-run-results';

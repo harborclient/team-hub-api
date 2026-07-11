@@ -4,11 +4,13 @@ import { TeamHubClientError } from './TeamHubClientError.js';
 import { isTeamHubSnippetsUnsupportedError } from './isTeamHubSnippetsUnsupportedError.js';
 import {
   collectionRecordSchema,
+  documentRecordSchema,
   environmentRecordSchema,
   errorResponseSchema,
   folderRecordSchema,
   healthResponseSchema,
   listCollectionsResponseSchema,
+  listDocumentsResponseSchema,
   listEnvironmentsResponseSchema,
   listFoldersResponseSchema,
   listHubLlmModelsResponseSchema,
@@ -41,6 +43,7 @@ import type {
   AdminEntityConfig,
   CollectionRecord,
   CreateCollectionInput,
+  CreateDocumentInput,
   CreateEnvironmentInput,
   CreateFolderInput,
   CreateHubTokenInput,
@@ -53,6 +56,7 @@ import type {
   CreatedHubUser,
   CreatedInvitedHubUser,
   CreateInvitedHubUserInput,
+  DocumentRecord,
   EnvironmentRecord,
   FolderRecord,
   HealthResponse,
@@ -60,11 +64,13 @@ import type {
   HubInvitationPreview,
   HubInvitationRecord,
   HubUserRecord,
+  MoveDocumentInput,
   MoveRequestInput,
   PluginSourcesResponse,
   PreviewHubInvitationInput,
   RedeemHubInvitationInput,
   RenameFolderInput,
+  ReorderDocumentsInput,
   ReorderFoldersInput,
   ReorderRequestsInput,
   RunResultDetail,
@@ -75,6 +81,7 @@ import type {
   SnippetRecord,
   TeamHubAdminResourceOptions,
   UpdateCollectionInput,
+  UpdateDocumentInput,
   UpdateEnvironmentInput,
   UpdateHubUserInput,
   UpdateRequestInput,
@@ -1093,6 +1100,79 @@ export class TeamHubClient implements ITeamHubClient {
    */
   async moveRequest(id: string, input: MoveRequestInput): Promise<void> {
     await this.request('PUT', `/requests/${id}/move`, {
+      body: input
+    });
+  }
+
+  /**
+   * Lists markdown documents in a collection.
+   *
+   * @param collectionId - Parent collection UUID.
+   */
+  async listDocuments(collectionId: string): Promise<DocumentRecord[]> {
+    const result = await this.request('GET', `/collections/${collectionId}/documents`, {
+      schema: listDocumentsResponseSchema
+    });
+    return (result as { documents: DocumentRecord[] }).documents;
+  }
+
+  /**
+   * Creates a new markdown document in a collection.
+   *
+   * @param collectionId - Parent collection UUID.
+   * @param input - Document fields.
+   */
+  async createDocument(collectionId: string, input: CreateDocumentInput): Promise<DocumentRecord> {
+    const result = await this.request('POST', `/collections/${collectionId}/documents`, {
+      body: input,
+      schema: documentRecordSchema
+    });
+    return result as DocumentRecord;
+  }
+
+  /**
+   * Updates an existing markdown document by id.
+   *
+   * @param id - Document UUID.
+   * @param input - Updated document fields including collection id.
+   */
+  async updateDocument(id: string, input: UpdateDocumentInput): Promise<DocumentRecord> {
+    const result = await this.request('PUT', `/documents/${id}`, {
+      body: input,
+      schema: documentRecordSchema
+    });
+    return result as DocumentRecord;
+  }
+
+  /**
+   * Deletes a markdown document by id.
+   *
+   * @param id - Document UUID.
+   */
+  async deleteDocument(id: string): Promise<void> {
+    await this.request('DELETE', `/documents/${id}`);
+  }
+
+  /**
+   * Reorders markdown documents within a folder or the collection root.
+   *
+   * @param collectionId - Parent collection UUID.
+   * @param input - Destination folder and ordered document ids.
+   */
+  async reorderDocuments(collectionId: string, input: ReorderDocumentsInput): Promise<void> {
+    await this.request('PUT', `/collections/${collectionId}/documents/reorder`, {
+      body: input
+    });
+  }
+
+  /**
+   * Moves a markdown document to another folder or root index.
+   *
+   * @param id - Document UUID.
+   * @param input - Destination folder and target index.
+   */
+  async moveDocument(id: string, input: MoveDocumentInput): Promise<void> {
+    await this.request('PUT', `/documents/${id}/move`, {
       body: input
     });
   }

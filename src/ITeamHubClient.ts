@@ -3,18 +3,22 @@ import type {
   AdminResourceOption,
   CollectionRecord,
   CreateCollectionInput,
+  CreateDocumentInput,
   CreateEnvironmentInput,
   CreateFolderInput,
   CreateRequestInput,
   CreateRunResultInput,
   CreateSnippetInput,
+  DocumentRecord,
   EnvironmentRecord,
   FolderRecord,
   HealthResponse,
   HubUserRecord,
+  MoveDocumentInput,
   MoveRequestInput,
   PluginSourcesResponse,
   RenameFolderInput,
+  ReorderDocumentsInput,
   ReorderFoldersInput,
   ReorderRequestsInput,
   RunResultDetail,
@@ -24,6 +28,7 @@ import type {
   SnippetRecord,
   TeamHubAdminResourceOptions,
   UpdateCollectionInput,
+  UpdateDocumentInput,
   UpdateEnvironmentInput,
   UpdateHubUserInput,
   CreateHubUserInput,
@@ -503,4 +508,50 @@ export interface ITeamHubClient {
    * @param input - Destination folder and target index.
    */
   moveRequest(id: string, input: MoveRequestInput): Promise<void>;
+
+  /**
+   * Lists markdown documents in a collection.
+   *
+   * @param collectionId - Parent collection UUID.
+   */
+  listDocuments(collectionId: string): Promise<DocumentRecord[]>;
+
+  /**
+   * Creates a new markdown document in a collection.
+   *
+   * @param collectionId - Parent collection UUID.
+   * @param input - Document fields.
+   */
+  createDocument(collectionId: string, input: CreateDocumentInput): Promise<DocumentRecord>;
+
+  /**
+   * Updates an existing markdown document by id.
+   *
+   * @param id - Document UUID.
+   * @param input - Updated document fields including collection id.
+   */
+  updateDocument(id: string, input: UpdateDocumentInput): Promise<DocumentRecord>;
+
+  /**
+   * Deletes a markdown document by id.
+   *
+   * @param id - Document UUID.
+   */
+  deleteDocument(id: string): Promise<void>;
+
+  /**
+   * Reorders markdown documents within a folder or the collection root.
+   *
+   * @param collectionId - Parent collection UUID.
+   * @param input - Destination folder and ordered document ids.
+   */
+  reorderDocuments(collectionId: string, input: ReorderDocumentsInput): Promise<void>;
+
+  /**
+   * Moves a markdown document to another folder or root index.
+   *
+   * @param id - Document UUID.
+   * @param input - Destination folder and target index.
+   */
+  moveDocument(id: string, input: MoveDocumentInput): Promise<void>;
 }

@@ -1553,6 +1553,204 @@ describe('TeamHubClient', () => {
     });
   });
 
+  describe('listDocuments', () => {
+    it('sends bearer auth and parses the documents list', async () => {
+      const collectionId = '550e8400-e29b-41d4-a716-446655440000';
+      const document = {
+        id: '880e8400-e29b-41d4-a716-446655440003',
+        collectionId,
+        folderId: null,
+        name: 'README.md',
+        content: '# API notes',
+        sortOrder: 0,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z'
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ documents: [document] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      const documents = await client.listDocuments(collectionId);
+
+      expect(documents).toEqual([document]);
+      expect(fetchMock).toHaveBeenCalledWith(
+        `http://127.0.0.1:8788/collections/${collectionId}/documents`,
+        expect.objectContaining({
+          method: 'GET',
+          headers: expect.objectContaining({
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json'
+          })
+        })
+      );
+    });
+  });
+
+  describe('createDocument', () => {
+    it('sends name, content, and folderId in the POST body', async () => {
+      const collectionId = '550e8400-e29b-41d4-a716-446655440000';
+      const folderId = '660e8400-e29b-41d4-a716-446655440001';
+      const document = {
+        id: '880e8400-e29b-41d4-a716-446655440003',
+        collectionId,
+        folderId,
+        name: 'Auth.md',
+        content: '# Auth flow',
+        sortOrder: 0,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z'
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(document), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      const created = await client.createDocument(collectionId, {
+        name: 'Auth.md',
+        content: '# Auth flow',
+        folderId
+      });
+
+      expect(created).toEqual(document);
+      expect(fetchMock).toHaveBeenCalledWith(
+        `http://127.0.0.1:8788/collections/${collectionId}/documents`,
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({
+            name: 'Auth.md',
+            content: '# Auth flow',
+            folderId
+          })
+        })
+      );
+    });
+  });
+
+  describe('updateDocument', () => {
+    it('sends updated document fields in the PUT body', async () => {
+      const documentId = '880e8400-e29b-41d4-a716-446655440003';
+      const collectionId = '550e8400-e29b-41d4-a716-446655440000';
+      const document = {
+        id: documentId,
+        collectionId,
+        folderId: null,
+        name: 'README.md',
+        content: '# Updated notes',
+        sortOrder: 0,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-02T00:00:00.000Z'
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(document), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      const updated = await client.updateDocument(documentId, {
+        collectionId,
+        name: 'README.md',
+        content: '# Updated notes'
+      });
+
+      expect(updated).toEqual(document);
+      expect(fetchMock).toHaveBeenCalledWith(
+        `http://127.0.0.1:8788/documents/${documentId}`,
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify({
+            collectionId,
+            name: 'README.md',
+            content: '# Updated notes'
+          })
+        })
+      );
+    });
+  });
+
+  describe('deleteDocument', () => {
+    it('resolves without a body for 204 responses', async () => {
+      const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      await expect(
+        client.deleteDocument('880e8400-e29b-41d4-a716-446655440003')
+      ).resolves.toBeUndefined();
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8788/documents/880e8400-e29b-41d4-a716-446655440003',
+        expect.objectContaining({
+          method: 'DELETE',
+          headers: expect.objectContaining({
+            Authorization: `Bearer ${token}`
+          })
+        })
+      );
+    });
+  });
+
+  describe('reorderDocuments', () => {
+    it('sends folderId and orderedDocumentIds in the PUT body', async () => {
+      const collectionId = '550e8400-e29b-41d4-a716-446655440000';
+      const folderId = '660e8400-e29b-41d4-a716-446655440001';
+      const orderedDocumentIds = [
+        '880e8400-e29b-41d4-a716-446655440003',
+        '990e8400-e29b-41d4-a716-446655440004'
+      ];
+
+      const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      await expect(
+        client.reorderDocuments(collectionId, { folderId, orderedDocumentIds })
+      ).resolves.toBeUndefined();
+      expect(fetchMock).toHaveBeenCalledWith(
+        `http://127.0.0.1:8788/collections/${collectionId}/documents/reorder`,
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify({ folderId, orderedDocumentIds })
+        })
+      );
+    });
+  });
+
+  describe('moveDocument', () => {
+    it('sends folderId and index in the PUT body', async () => {
+      const documentId = '880e8400-e29b-41d4-a716-446655440003';
+      const folderId = '660e8400-e29b-41d4-a716-446655440001';
+
+      const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      await expect(
+        client.moveDocument(documentId, { folderId, index: 1 })
+      ).resolves.toBeUndefined();
+      expect(fetchMock).toHaveBeenCalledWith(
+        `http://127.0.0.1:8788/documents/${documentId}/move`,
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify({ folderId, index: 1 })
+        })
+      );
+    });
+  });
+
   describe('getPluginSources', () => {
     it('returns plugin source URLs configured on the Team Hub', async () => {
       const payload = {

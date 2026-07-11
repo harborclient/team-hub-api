@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { TeamHubAuthConfig } from './auth.js';
 import type {
   CollectionRecord,
+  DocumentRecord,
   EnvironmentRecord,
   FolderRecord,
   HealthResponse,
@@ -408,6 +409,27 @@ export const listFoldersResponseSchema = z.object({
  */
 export const listRequestsResponseSchema = z.object({
   requests: z.array(savedRequestRecordSchema)
+});
+
+/**
+ * JSON shape for a persisted markdown document record.
+ */
+export const documentRecordSchema = z.object({
+  id: z.string(),
+  collectionId: z.string(),
+  folderId: z.string().nullable(),
+  name: z.string(),
+  content: z.string(),
+  sortOrder: z.number().int(),
+  createdAt: timestampSchema,
+  updatedAt: timestampSchema
+}) satisfies z.ZodType<DocumentRecord>;
+
+/**
+ * List response wrapper for markdown documents.
+ */
+export const listDocumentsResponseSchema = z.object({
+  documents: z.array(documentRecordSchema)
 });
 
 /**

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.4.0 - 2026-07-13
+
 - Add optional `color` field to collection, folder, request, document, and environment records and update inputs.
 
 ## 0.3.5 - 2026-07-10

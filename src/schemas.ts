@@ -93,6 +93,13 @@ export const timestampSchema = z.iso.datetime();
 export const deletionLockedSchema = z.boolean().optional().default(false);
 
 /**
+ * Optional sidebar color token returned by Team Hub entity routes.
+ *
+ * Older hub versions omit this field; treat missing values as no color.
+ */
+export const sidebarColorSchema = z.union([z.string(), z.null()]).optional();
+
+/**
  * JSON shape for a persisted collection record.
  */
 export const collectionRecordSchema = z.object({
@@ -104,7 +111,8 @@ export const collectionRecordSchema = z.object({
   preRequestScript: z.string(),
   postRequestScript: z.string(),
   createdAt: timestampSchema,
-  deletionLocked: deletionLockedSchema
+  deletionLocked: deletionLockedSchema,
+  color: sidebarColorSchema
 }) satisfies z.ZodType<CollectionRecord>;
 
 /**
@@ -115,7 +123,8 @@ export const environmentRecordSchema = z.object({
   name: z.string(),
   variables: z.array(variable),
   createdAt: timestampSchema,
-  deletionLocked: deletionLockedSchema
+  deletionLocked: deletionLockedSchema,
+  color: sidebarColorSchema
 }) satisfies z.ZodType<EnvironmentRecord>;
 
 /**
@@ -156,7 +165,8 @@ export const folderRecordSchema = z.object({
   collectionId: z.string(),
   name: z.string(),
   sortOrder: z.number().int(),
-  createdAt: timestampSchema
+  createdAt: timestampSchema,
+  color: sidebarColorSchema
 }) satisfies z.ZodType<FolderRecord>;
 
 /**
@@ -179,7 +189,8 @@ export const savedRequestRecordSchema = z.object({
   folderId: z.string().nullable(),
   sortOrder: z.number().int(),
   createdAt: timestampSchema,
-  updatedAt: timestampSchema
+  updatedAt: timestampSchema,
+  color: sidebarColorSchema
 }) satisfies z.ZodType<SavedRequestRecord>;
 
 /**
@@ -422,7 +433,8 @@ export const documentRecordSchema = z.object({
   content: z.string(),
   sortOrder: z.number().int(),
   createdAt: timestampSchema,
-  updatedAt: timestampSchema
+  updatedAt: timestampSchema,
+  color: sidebarColorSchema
 }) satisfies z.ZodType<DocumentRecord>;
 
 /**

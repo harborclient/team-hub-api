@@ -74,6 +74,30 @@ describe('collectionRecordSchema', () => {
       expect(parsed.data.deletionLocked).toBe(false);
     }
   });
+
+  it('accepts optional sidebar color on collection records', () => {
+    const parsed = collectionRecordSchema.safeParse({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      name: 'Shared API',
+      variables: [],
+      headers: [],
+      auth: {
+        type: 'none',
+        basic: { username: '', password: '' },
+        bearer: { token: '' }
+      },
+      preRequestScript: '',
+      postRequestScript: '',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      deletionLocked: false,
+      color: '#ff5500'
+    });
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.color).toBe('#ff5500');
+    }
+  });
 });
 
 describe('adminResourceOptionSchema', () => {

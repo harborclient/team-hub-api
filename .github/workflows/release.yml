@@ -2,7 +2,17 @@ name: Release
 
 # Release workflow for @harborclient/team-hub-api. Runs CI, bumps the `version`
 # field in package.json, renames `## Unreleased` in CHANGELOG.md, commits +
-# tags + pushes back to main, creates a GitHub release, and publishes to npm.
+# tags + pushes back to the selected branch, creates a GitHub release, and
+# publishes to npm.
+#
+# Manual run from the repo root:
+#
+#   gh workflow run release.yml --ref main \
+#     -f branch=main \
+#     -f release_type=patch
+#
+# `--ref` must point to a ref that contains this workflow file (typically
+# `main`); `-f branch=...` selects which branch is released.
 #
 # Required setup BEFORE the first run:
 #
@@ -10,13 +20,18 @@ name: Release
 #      token configured to bypass 2FA prompts) with publish rights to
 #      @harborclient/team-hub-api.
 #
-#   2. Branch protection on `main` must allow github-actions[bot] to push.
+#   2. Branch protection on the release branch must allow github-actions[bot] to push.
 
 on:
   workflow_dispatch:
     inputs:
+      branch:
+        description: 'Branch to release from (commit and tag are pushed here)'
+        required: true
+        default: main
+        type: string
       release_type:
-        description: 'semver bump'
+        description: 'Version bump (patch, minor, or major)'
         required: true
         default: patch
         type: choice
@@ -31,6 +46,8 @@ permissions:
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ inputs.branch }}
     secrets: inherit
 
   release:
@@ -43,6 +60,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.branch }}
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -109,7 +127,7 @@ jobs:
           git add package.json CHANGELOG.md
           git commit -m "chore(changelog): release v${VERSION} [skip ci]"
           git tag -a "v${VERSION}" -m "Release v${VERSION}"
-          git push origin HEAD:main --follow-tags
+          git push origin "HEAD:${{ inputs.branch }}" --follow-tags
 
       - name: Create GitHub release
         env:

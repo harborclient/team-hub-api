@@ -681,6 +681,11 @@ export interface CollectionRecord {
    * When true, non-admin users cannot delete this collection on the hub.
    */
   deletionLocked: boolean;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -691,6 +696,11 @@ export interface CreateCollectionInput {
    * Display name for the new collection.
    */
   name: string;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -726,6 +736,11 @@ export interface UpdateCollectionInput {
    * Default authorization settings.
    */
   auth: TeamHubAuthConfig;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -756,6 +771,11 @@ export interface EnvironmentRecord {
    * When true, non-admin users cannot delete this environment on the hub.
    */
   deletionLocked: boolean;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -766,6 +786,11 @@ export interface CreateEnvironmentInput {
    * Display name for the new environment.
    */
   name: string;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -781,6 +806,11 @@ export interface UpdateEnvironmentInput {
    * Environment-scoped variables.
    */
   variables: Variable[];
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -891,6 +921,11 @@ export interface FolderRecord {
    * ISO 8601 timestamp when the folder was created.
    */
   createdAt: string;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -901,6 +936,11 @@ export interface CreateFolderInput {
    * Display name for the new folder.
    */
   name: string;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -911,6 +951,11 @@ export interface RenameFolderInput {
    * Updated folder display name.
    */
   name: string;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -1011,6 +1056,11 @@ export interface SavedRequestRecord {
    * ISO 8601 timestamp when the request was last updated.
    */
   updatedAt: string;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -1076,6 +1126,11 @@ export interface CreateRequestInput {
    * Parent folder UUID, or omitted/`null` for the collection root.
    */
   folderId?: string | null;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -1161,6 +1216,11 @@ export interface DocumentRecord {
    * ISO 8601 timestamp when the document was last updated.
    */
   updatedAt: string;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**
@@ -1181,6 +1241,11 @@ export interface CreateDocumentInput {
    * Parent folder UUID, or omitted/`null` for the collection root.
    */
   folderId?: string | null;
+
+  /**
+   * Optional sidebar color token (CSS color string), or null when unset.
+   */
+  color?: string | null;
 }
 
 /**

@@ -3,6 +3,11 @@ name: CI
 on:
   workflow_dispatch:
   workflow_call:
+    inputs:
+      ref:
+        description: 'Git ref to checkout'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -13,6 +18,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       - uses: pnpm/action-setup@v4
 

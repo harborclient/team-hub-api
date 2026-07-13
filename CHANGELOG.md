@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add optional `color` field to collection, folder, request, document, and environment records and update inputs.
+
 ## 0.3.5 - 2026-07-10
 
 - Add shared Team Hub invitation link helpers for HTTPS join URLs and harborclient:// deep links.

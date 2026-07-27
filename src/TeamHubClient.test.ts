@@ -1145,6 +1145,7 @@ describe('TeamHubClient', () => {
       const folder = {
         id: '660e8400-e29b-41d4-a716-446655440001',
         collectionId,
+        parentFolderId: null,
         name: 'Auth',
         sortOrder: 0,
         createdAt: '2026-01-01T00:00:00.000Z',
@@ -1177,6 +1178,40 @@ describe('TeamHubClient', () => {
           headers: expect.objectContaining({
             Authorization: `Bearer ${token}`
           })
+        })
+      );
+    });
+  });
+
+  describe('moveFolder', () => {
+    it('moves a folder to a nested parent and returns the updated record', async () => {
+      const folderId = '660e8400-e29b-41d4-a716-446655440001';
+      const parentFolderId = '770e8400-e29b-41d4-a716-446655440002';
+      const folder = {
+        id: folderId,
+        collectionId: '550e8400-e29b-41d4-a716-446655440000',
+        parentFolderId,
+        name: 'Auth',
+        sortOrder: 1,
+        createdAt: '2026-01-01T00:00:00.000Z'
+      };
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(folder), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+      await expect(client.moveFolder(folderId, { parentFolderId, sortOrder: 1 })).resolves.toEqual(
+        folder
+      );
+      expect(fetchMock).toHaveBeenCalledWith(
+        `http://127.0.0.1:8788/folders/${folderId}/move`,
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify({ parentFolderId, sortOrder: 1 })
         })
       );
     });

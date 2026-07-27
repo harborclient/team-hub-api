@@ -15,6 +15,7 @@ import type {
   HealthResponse,
   HubUserRecord,
   MoveDocumentInput,
+  MoveFolderInput,
   MoveRequestInput,
   PluginSourcesResponse,
   RenameFolderInput,
@@ -456,7 +457,15 @@ export interface ITeamHubClient {
   deleteFolder(id: string): Promise<void>;
 
   /**
-   * Reorders folders within a collection.
+   * Moves a folder to another parent or collection root.
+   *
+   * @param id - Folder UUID.
+   * @param input - Destination parent and optional sibling index.
+   */
+  moveFolder(id: string, input: MoveFolderInput): Promise<FolderRecord>;
+
+  /**
+   * Reorders sibling folders within a collection.
    *
    * @param collectionId - Parent collection UUID.
    * @param input - Folder ids in the desired order.

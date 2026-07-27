@@ -54,6 +54,7 @@ export type {
   HubUserRecord,
   HubUserRole,
   MoveDocumentInput,
+  MoveFolderInput,
   MoveRequestInput,
   PluginSourcesResponse,
   PreviewHubInvitationInput,

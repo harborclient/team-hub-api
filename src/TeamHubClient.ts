@@ -65,6 +65,7 @@ import type {
   HubInvitationRecord,
   HubUserRecord,
   MoveDocumentInput,
+  MoveFolderInput,
   MoveRequestInput,
   PluginSourcesResponse,
   PreviewHubInvitationInput,
@@ -1017,7 +1018,21 @@ export class TeamHubClient implements ITeamHubClient {
   }
 
   /**
-   * Reorders folders within a collection.
+   * Moves a folder to another parent or collection root.
+   *
+   * @param id - Folder UUID.
+   * @param input - Destination parent and optional sibling index.
+   */
+  async moveFolder(id: string, input: MoveFolderInput): Promise<FolderRecord> {
+    const result = await this.request('PUT', `/folders/${id}/move`, {
+      body: input,
+      schema: folderRecordSchema
+    });
+    return result as FolderRecord;
+  }
+
+  /**
+   * Reorders sibling folders within a collection.
    *
    * @param collectionId - Parent collection UUID.
    * @param input - Folder ids in the desired order.

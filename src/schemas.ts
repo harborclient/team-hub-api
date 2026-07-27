@@ -93,11 +93,11 @@ export const timestampSchema = z.iso.datetime();
 export const deletionLockedSchema = z.boolean().optional().default(false);
 
 /**
- * Optional sidebar color token returned by Team Hub entity routes.
+ * Optional sidebar marker token returned by Team Hub entity routes.
  *
- * Older hub versions omit this field; treat missing values as no color.
+ * Older hub versions omit this field; treat missing values as no marker.
  */
-export const sidebarColorSchema = z.union([z.string(), z.null()]).optional();
+export const sidebarMarkerSchema = z.union([z.string(), z.null()]).optional();
 
 /**
  * JSON shape for a persisted collection record.
@@ -112,7 +112,7 @@ export const collectionRecordSchema = z.object({
   postRequestScript: z.string(),
   createdAt: timestampSchema,
   deletionLocked: deletionLockedSchema,
-  color: sidebarColorSchema
+  marker: sidebarMarkerSchema
 }) satisfies z.ZodType<CollectionRecord>;
 
 /**
@@ -124,7 +124,7 @@ export const environmentRecordSchema = z.object({
   variables: z.array(variable),
   createdAt: timestampSchema,
   deletionLocked: deletionLockedSchema,
-  color: sidebarColorSchema
+  marker: sidebarMarkerSchema
 }) satisfies z.ZodType<EnvironmentRecord>;
 
 /**
@@ -163,11 +163,37 @@ export const snippetRecordSchema = z.object({
 export const folderRecordSchema = z.object({
   id: z.string(),
   collectionId: z.string(),
+  parentFolderId: z.string().nullable(),
   name: z.string(),
   sortOrder: z.number().int(),
   createdAt: timestampSchema,
-  color: sidebarColorSchema
+  marker: sidebarMarkerSchema
 }) satisfies z.ZodType<FolderRecord>;
+
+/**
+ * Request body for creating a folder.
+ */
+export const createFolderBodySchema = z.object({
+  name: z.string().trim().min(1),
+  parentFolderId: z.string().nullable().optional(),
+  marker: sidebarMarkerSchema
+});
+
+/**
+ * Request body for reordering sibling folders.
+ */
+export const reorderFoldersBodySchema = z.object({
+  parentFolderId: z.string().nullable(),
+  orderedFolderIds: z.array(z.string().trim().min(1))
+});
+
+/**
+ * Request body for moving a folder to a new parent.
+ */
+export const moveFolderBodySchema = z.object({
+  parentFolderId: z.string().nullable(),
+  sortOrder: z.number().int().nonnegative().optional()
+});
 
 /**
  * JSON shape for a persisted saved request record.
@@ -190,7 +216,7 @@ export const savedRequestRecordSchema = z.object({
   sortOrder: z.number().int(),
   createdAt: timestampSchema,
   updatedAt: timestampSchema,
-  color: sidebarColorSchema
+  marker: sidebarMarkerSchema
 }) satisfies z.ZodType<SavedRequestRecord>;
 
 /**
@@ -434,7 +460,7 @@ export const documentRecordSchema = z.object({
   sortOrder: z.number().int(),
   createdAt: timestampSchema,
   updatedAt: timestampSchema,
-  color: sidebarColorSchema
+  marker: sidebarMarkerSchema
 }) satisfies z.ZodType<DocumentRecord>;
 
 /**

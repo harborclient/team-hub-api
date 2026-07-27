@@ -683,9 +683,9 @@ export interface CollectionRecord {
   deletionLocked: boolean;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**
@@ -698,9 +698,9 @@ export interface CreateCollectionInput {
   name: string;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**
@@ -738,9 +738,9 @@ export interface UpdateCollectionInput {
   auth: TeamHubAuthConfig;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**
@@ -773,9 +773,9 @@ export interface EnvironmentRecord {
   deletionLocked: boolean;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**
@@ -788,9 +788,9 @@ export interface CreateEnvironmentInput {
   name: string;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**
@@ -808,9 +808,9 @@ export interface UpdateEnvironmentInput {
   variables: Variable[];
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**
@@ -908,6 +908,11 @@ export interface FolderRecord {
   collectionId: string;
 
   /**
+   * Parent folder UUID, or `null` when at the collection root.
+   */
+  parentFolderId: string | null;
+
+  /**
    * Display name shown in the collection tree.
    */
   name: string;
@@ -923,9 +928,9 @@ export interface FolderRecord {
   createdAt: string;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**
@@ -938,9 +943,14 @@ export interface CreateFolderInput {
   name: string;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Parent folder UUID, or omitted/`null` for the collection root.
    */
-  color?: string | null;
+  parentFolderId?: string | null;
+
+  /**
+   * Optional sidebar marker token (CSS color string), or null when unset.
+   */
+  marker?: string | null;
 }
 
 /**
@@ -953,9 +963,9 @@ export interface RenameFolderInput {
   name: string;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**
@@ -963,9 +973,29 @@ export interface RenameFolderInput {
  */
 export interface ReorderFoldersInput {
   /**
+   * Parent folder UUID, or `null` to reorder collection-root folders.
+   */
+  parentFolderId: string | null;
+
+  /**
    * Folder ids in the desired display order.
    */
   orderedFolderIds: string[];
+}
+
+/**
+ * Request body for `PUT /folders/:id/move`.
+ */
+export interface MoveFolderInput {
+  /**
+   * Destination parent folder UUID, or `null` for the collection root.
+   */
+  parentFolderId: string | null;
+
+  /**
+   * Optional zero-based index among destination siblings.
+   */
+  sortOrder?: number;
 }
 
 /**
@@ -1058,9 +1088,9 @@ export interface SavedRequestRecord {
   updatedAt: string;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**
@@ -1128,9 +1158,9 @@ export interface CreateRequestInput {
   folderId?: string | null;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**
@@ -1218,9 +1248,9 @@ export interface DocumentRecord {
   updatedAt: string;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**
@@ -1243,9 +1273,9 @@ export interface CreateDocumentInput {
   folderId?: string | null;
 
   /**
-   * Optional sidebar color token (CSS color string), or null when unset.
+   * Optional sidebar marker token (CSS color string), or null when unset.
    */
-  color?: string | null;
+  marker?: string | null;
 }
 
 /**

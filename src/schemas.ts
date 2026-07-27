@@ -163,7 +163,13 @@ export const snippetRecordSchema = z.object({
 export const folderRecordSchema = z.object({
   id: z.string(),
   collectionId: z.string(),
-  parentFolderId: z.string().nullable(),
+  /**
+   * Absent on hub servers that predate nested folders; those folders are roots.
+   */
+  parentFolderId: z
+    .union([z.string(), z.null()])
+    .optional()
+    .transform((value) => value ?? null),
   name: z.string(),
   sortOrder: z.number().int(),
   createdAt: timestampSchema,

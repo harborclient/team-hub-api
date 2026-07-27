@@ -244,8 +244,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-            ? err.message
-            : 'Unknown network error';
+          ? err.message
+          : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 
@@ -279,11 +279,17 @@ export class TeamHubClient implements ITeamHubClient {
 
     const parsed = schema.safeParse(json);
     if (!parsed.success) {
-      throw new TeamHubClientError('Response body failed validation', {
-        status: response.status,
-        method,
-        path
-      });
+      const issue = parsed.error.issues[0];
+      const issuePath = issue?.path?.length ? issue.path.join('.') : 'body';
+      const issueMessage = issue?.message ?? 'unknown schema error';
+      throw new TeamHubClientError(
+        `Response body failed validation (${issuePath}: ${issueMessage})`,
+        {
+          status: response.status,
+          method,
+          path
+        }
+      );
     }
 
     return parsed.data;
@@ -740,8 +746,8 @@ export class TeamHubClient implements ITeamHubClient {
         err instanceof Error && err.name === 'TimeoutError'
           ? `Request timed out after ${this.requestTimeoutMs} ms`
           : err instanceof Error
-            ? err.message
-            : 'Unknown network error';
+          ? err.message
+          : 'Unknown network error';
       throw new TeamHubClientError(message, { status: 0, method, path });
     }
 

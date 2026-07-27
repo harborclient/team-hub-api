@@ -1183,6 +1183,33 @@ describe('TeamHubClient', () => {
     });
   });
 
+  describe('listFolders', () => {
+    it('defaults parentFolderId to null for hub servers that omit it', async () => {
+      const collectionId = '550e8400-e29b-41d4-a716-446655440000';
+      const folder = {
+        id: '660e8400-e29b-41d4-a716-446655440001',
+        collectionId,
+        name: 'Auth',
+        sortOrder: 0,
+        createdAt: '2026-01-01T00:00:00.000Z'
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ folders: [folder] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+      globalThis.fetch = fetchMock;
+
+      const client = createClient();
+
+      await expect(client.listFolders(collectionId)).resolves.toEqual([
+        expect.objectContaining({ id: folder.id, parentFolderId: null })
+      ]);
+    });
+  });
+
   describe('moveFolder', () => {
     it('moves a folder to a nested parent and returns the updated record', async () => {
       const folderId = '660e8400-e29b-41d4-a716-446655440001';

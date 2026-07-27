@@ -4,4 +4,4 @@ dist
 .eslintcache
 .DS_Store
 docs/.vitepress/cache
-docs/.vitepress/dist
+docs/.vitepress/dist_site
